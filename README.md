@@ -54,6 +54,16 @@ HTML 加一行即可（零安裝、零 build，任何技術棧）：
 
 system font stack（PingFang TC / Microsoft JhengHei …），無 web font、字重 600、標題 700。已內建，勿覆蓋。
 
+## 品牌資產（Logo / QR）
+
+完整資產與規範見 `ds-bundle/BRAND-ASSETS.md`。常用：
+
+- 主標誌（純 M 圖標）：`/ds/logo/logo-mark-light.png`（淺底）、`/ds/logo/logo-mark-dark.png`（深底）
+- 完整標誌（含公司名+標語）：`/ds/logo/logo-full-light.png`、`/ds/logo/logo-full-dark.png`
+- 官網 QR：`/ds/logo/qr-website-light.png`（白底）、`/ds/logo/qr-website-dark.png`（深底）
+
+base URL：`https://www.megapower.asia`。淺底用 light 版、深底用 dark 版；勿變形/改色。
+
 ## 三種角色
 
 - **消費（套用品牌）**：引用上面的 URL 即可。

@@ -40,6 +40,14 @@
 
 需要精確值時讀這些檔（綁定副本）：`styles.css`（入口）、`tokens/tokens.css`（所有 token）、`_ds_bundle.css`（base/typography 與元件 class 實作）。
 
+## 品牌 Logo
+
+群兆 logo 託管於公開 URL，依背景選版（淺底用 light、深底用 dark），勿變形或改色：
+
+- 主標誌（純 M，UI/favicon/小尺寸）：`https://www.megapower.asia/ds/logo/logo-mark-light.png`、`…/logo-mark-dark.png`
+- 完整標誌（M+公司名+標語）：`…/ds/logo/logo-full-light.png`、`…/logo-full-dark.png`
+- 官網 QR：`…/ds/logo/qr-website-light.png`、`…/qr-website-dark.png`
+
 ## 慣用範例
 
 ```html
