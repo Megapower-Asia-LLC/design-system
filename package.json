@@ -1,0 +1,27 @@
+{
+  "name": "@megapower/design-tokens",
+  "version": "0.1.0",
+  "description": "群兆視覺設計系統 — design tokens、logo 與品牌 CSS（Megapower Design System）",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./tokens.js": "./tokens.js",
+    "./css": "./megapower.css",
+    "./tokens.css": "./ds-bundle/tokens/tokens.css"
+  },
+  "files": [
+    "index.js",
+    "tokens.js",
+    "megapower.css",
+    "ds-bundle",
+    "CONVENTIONS.md",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Megapower-Asia-LLC/design-system.git"
+  },
+  "license": "UNLICENSED",
+  "private": false
+}
