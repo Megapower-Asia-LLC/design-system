@@ -1,0 +1,30 @@
+<!-- @dsCard group="Foundations" -->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Colors</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  body { padding: 2rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; max-width: 800px; }
+  .sw { border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; }
+  .chip { height: 64px; }
+  .meta { padding: .5rem .625rem; font-size: var(--text-sm); }
+  .meta .name { font-weight: 700; display: block; }
+  .meta .val { color: var(--color-text-muted); font-size: var(--text-sm); }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="sw"><div class="chip" style="background:var(--color-primary)"></div><div class="meta"><span class="name">primary</span><span class="val">#F06000</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-primary-hover)"></div><div class="meta"><span class="name">primary-hover</span><span class="val">#D45200</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-primary-soft-bg)"></div><div class="meta"><span class="name">primary-soft-bg</span><span class="val">#FFF7ED</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-text)"></div><div class="meta"><span class="name">text</span><span class="val">#1E293B</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-text-muted)"></div><div class="meta"><span class="name">text-muted</span><span class="val">#64748B</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-bg-soft)"></div><div class="meta"><span class="name">bg-soft</span><span class="val">#F8FAFC</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-border)"></div><div class="meta"><span class="name">border</span><span class="val">#E2E8F0</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-bg);border-bottom:1px solid var(--color-border)"></div><div class="meta"><span class="name">bg</span><span class="val">#FFFFFF</span></div></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!-- @dsCard group="Foundations" -->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Typography</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  body { padding: 2rem; display: flex; flex-direction: column; gap: 1rem; }
+  .t { display: flex; align-items: baseline; gap: 1rem; }
+  .tag { font-size: var(--text-sm); color: var(--color-text-muted); min-width: 9rem; }
+  .d-lg { font-size: var(--text-display-lg); font-weight: 700; line-height: 1.15; }
+  .d-md { font-size: var(--text-display-md); font-weight: 700; line-height: 1.2; }
+  .xl { font-size: var(--text-xl); font-weight: 700; }
+  .lg { font-size: var(--text-lg); }
+  .base { font-size: var(--text-base); }
+  .sm { font-size: var(--text-sm); color: var(--color-text-muted); }
+</style>
+</head>
+<body>
+  <div class="t"><span class="tag">display-lg / 700</span><span class="d-lg">群兆視覺設計系統</span></div>
+  <div class="t"><span class="tag">display-md / 700</span><span class="d-md">全域可見度分析</span></div>
+  <div class="t"><span class="tag">xl / 700</span><span class="xl">區塊標題 Heading</span></div>
+  <div class="t"><span class="tag">lg / 600</span><span class="lg">次標題 Subhead</span></div>
+  <div class="t"><span class="tag">base / 600</span><span class="base">正文 Body — system font stack，整體字重 600 更紮實。</span></div>
+  <div class="t"><span class="tag">sm / muted</span><span class="sm">輔助說明文字 Caption</span></div>
+</body>
+</html>

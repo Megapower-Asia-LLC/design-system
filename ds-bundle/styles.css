@@ -1,0 +1,8 @@
+/* ============================================================
+   Megapower Design System — entry stylesheet
+   Rendered designs receive this file's full @import closure,
+   so every token and component style is reachable from here.
+   Source of truth: megaweb/src/styles/*.css
+   ============================================================ */
+@import "./tokens/tokens.css";
+@import "./_ds_bundle.css";

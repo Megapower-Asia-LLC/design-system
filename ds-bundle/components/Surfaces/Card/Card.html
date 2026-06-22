@@ -1,0 +1,35 @@
+<!-- @dsCard group="Surfaces" -->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Card</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  body { padding: 2rem; background: var(--color-bg-soft); }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 1.5rem; max-width: 760px; }
+  .card h3 { margin: 0 0 .5rem; font-size: var(--text-lg); }
+  .card p { margin: 0; color: var(--color-text-muted); font-size: var(--text-sm); }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="card">
+      <h3>基本卡 Card</h3>
+      <p>白底、細框、小陰影、大圓角。內容容器的預設樣式。</p>
+    </div>
+    <div class="card card--soft">
+      <h3>柔底 .card--soft</h3>
+      <p>使用 --color-bg-soft 背景，與基本卡層次區隔。</p>
+    </div>
+    <div class="card card--accent">
+      <h3>強調 .card--accent</h3>
+      <p>左側 3px 品牌橘邊條，標示重點區塊。</p>
+    </div>
+    <div class="card card--interactive">
+      <h3>互動 .card--interactive</h3>
+      <p>hover 上浮 + 陰影加深 + 品牌色邊框。用於可點擊卡。</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!-- @dsCard group="Actions" -->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Button</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  body { padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem; align-items: flex-start; }
+  .row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+  .label { font-size: var(--text-sm); color: var(--color-text-muted); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <a class="btn btn--primary btn--lg">主要 Primary</a>
+    <a class="btn btn--secondary btn--lg">次要 Secondary</a>
+    <a class="btn btn--outline btn--lg">外框 Outline</a>
+  </div>
+  <div class="row">
+    <a class="btn btn--primary btn--md">Medium</a>
+    <a class="btn btn--secondary btn--md">Medium</a>
+    <a class="btn btn--outline btn--md">Medium</a>
+  </div>
+  <div class="row">
+    <a class="btn btn--primary btn--sm">Small</a>
+    <a class="btn btn--secondary btn--sm">Small</a>
+    <a class="btn btn--outline btn--sm">Small</a>
+  </div>
+  <span class="label">.btn + .btn--{primary｜secondary｜outline} + .btn--{sm｜md｜lg}</span>
+</body>
+</html>

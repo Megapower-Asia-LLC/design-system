@@ -1,0 +1,227 @@
+/* === Megapower Design System — base + component styles ===
+   Source of truth: megaweb/src/styles/{base,components}.css + global.css utilities
+   Reachable from styles.css @import closure. Do not hand-edit; regenerate from source. */
+
+/* === Reset === */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  /* per 2026-05-21 Aiken：system font (PingFang TC / Microsoft JhengHei) 預設 weight 400 偏細
+     整體 boost 到 600 (semibold)、Windows Microsoft JhengHei fallback 到 bold (700) 才視覺明顯加粗、headings 維持 700、保留視覺層次但整體更紮實 */
+  font-weight: 600;
+  /* macOS/iOS Safari 字型抗鋸齒 — 避免 medium weight 在 Retina 上看起來像偏粗的 regular */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* === Base typography === */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-text);
+}
+
+/* strong / b 元素 boost (default 700 = same as headings, 加粗到 800 強化區別) */
+strong, b {
+  font-weight: 700;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: var(--space-4);
+}
+
+/* === Links === */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* === Media === */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* === Forms === */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+/* ============================================================
+   Components — v0.1 (Phase 3 W3)
+   Global classes：.btn / .section / .card 三件套
+   命名：BEM — .block + .block--modifier
+   ============================================================ */
+
+/* === Button === */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--transition-fast),
+              color var(--transition-fast),
+              border-color var(--transition-fast),
+              box-shadow var(--transition-fast);
+}
+
+.btn--sm { padding: 0.4rem 0.875rem;  font-size: var(--text-sm); }
+.btn--md { padding: 0.625rem 1.25rem; font-size: var(--text-base); }
+.btn--lg { padding: 0.875rem 1.75rem; font-size: var(--text-base); }
+
+.btn--primary {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+.btn--primary:hover {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+.btn--secondary {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+.btn--secondary:hover {
+  background: var(--color-bg-soft);
+  border-color: var(--color-text-muted);
+}
+
+.btn--outline {
+  background: transparent;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.btn--outline:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* 深底 secondary 變體 */
+.section--dark .btn--secondary {
+  color: #F1F5F9;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.section--dark .btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.65);
+}
+
+/* === Section === */
+.section {
+  padding: var(--spacing-section) var(--spacing-container);
+}
+.section--soft { background: var(--color-bg-soft); }
+.section--dark { background: var(--color-text); color: #fff; }
+
+.section__inner         { max-width: var(--max-width-content); margin-inline: auto; }
+.section__inner--narrow { max-width: var(--max-width-narrow);  margin-inline: auto; }
+
+/* === Card === */
+.card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-sm);
+}
+.card--soft        { background: var(--color-bg-soft); }
+.card--accent      { border-left: 3px solid var(--color-primary); }
+.card--interactive {
+  transition: transform var(--transition-fast),
+              box-shadow var(--transition-base),
+              border-color var(--transition-base);
+}
+.card--interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+/* === Utilities (from global.css) === */
+/* === Skip link & a11y utility（既有保留） === */
+.skip-link {
+  position: absolute;
+  top: -3rem;
+  left: 1rem;
+  background: var(--color-primary);
+  color: #fff;
+  padding: var(--space-2) var(--space-4);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  z-index: 9999;
+  transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* === Container（既有保留） === */
+.container {
+  max-width: var(--max-width-content);
+  margin-inline: auto;
+  padding-inline: var(--spacing-container);
+}
+
+/* === Focus styles === */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* === Smooth anchor scrolling with offset for sticky header === */
+[id] {
+  scroll-margin-top: 80px;
+}

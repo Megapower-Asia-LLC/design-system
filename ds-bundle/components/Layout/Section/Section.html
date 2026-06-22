@@ -1,0 +1,37 @@
+<!-- @dsCard group="Layout" -->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Section</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  body { margin: 0; }
+  .section { padding-block: 2.5rem; }     /* 預覽用縮短垂直留白 */
+  .section h2 { margin: 0 0 .5rem; }
+  .section p { margin: 0; color: var(--color-text-muted); }
+  .section--dark p { color: #CBD5E1; }
+</style>
+</head>
+<body>
+  <section class="section">
+    <div class="section__inner">
+      <h2>標準區塊 .section</h2>
+      <p>白底，內容置中限寬 .section__inner（max 1200px）。</p>
+    </div>
+  </section>
+  <section class="section section--soft">
+    <div class="section__inner--narrow">
+      <h2>柔底窄欄 .section--soft + __inner--narrow</h2>
+      <p>淺灰底、限寬 720px，適合長文閱讀。</p>
+    </div>
+  </section>
+  <section class="section section--dark">
+    <div class="section__inner">
+      <h2>深底 .section--dark</h2>
+      <p>深色強調區塊，常用於 CTA。</p>
+      <a class="btn btn--primary btn--md" style="margin-top:1rem">行動呼籲</a>
+    </div>
+  </section>
+</body>
+</html>
