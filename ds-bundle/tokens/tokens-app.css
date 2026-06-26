@@ -11,6 +11,7 @@
    ⚠ 三色皆過白底 AA(4.5) 但皆不過深底；深底（toast / .section--dark）上
       改「白字 + 彩色 icon」或淺化變體，勿當深底文字色。
    收編對象：MegaQ #16a34a（對白 3.3:1 fail AA）、MegaQuotr #10B981——皆改 import 本檔對齊。
+   info 為 MegaQ badge/連結既有需求收編而納入（muted 鋼藍）；purple 通用性低，暫不納入。
    ============================================================ */
 :root {
   /* 沉穩低飽和、與品牌橘 #F06000 和諧；色值經 WCAG AA 實測選定 */
@@ -25,4 +26,8 @@
   --color-danger:        #B42318;  /* 白 6.57:1 ✓ 沉穩磚紅 */
   --color-danger-hover:  #97180F;
   --color-danger-tint:   color-mix(in srgb, var(--color-danger) 12%, transparent);
+
+  --color-info:          #2C5282;  /* 白 7.9:1 ✓ 沉穩鋼藍（中性資訊提示：badge/連結）*/
+  --color-info-hover:    #21426B;
+  --color-info-tint:     color-mix(in srgb, var(--color-info) 12%, transparent);
 }

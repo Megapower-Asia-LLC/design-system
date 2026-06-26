@@ -44,7 +44,7 @@
 
 ## 應用層語意色（opt-in，非品牌門面）
 
-品牌門面只有橘+灰，**不含** success/warning/danger。內部工具（後台／表單）需功能回饋色時，另引入 `tokens/tokens-app.css`（npm：`@import "@megapower/design-tokens/tokens-app.css"`），取得 muted 版 `--color-success` #2E7D55／`--color-warning` #9A6700／`--color-danger` #B42318（皆過白底 WCAG AA、各附 `-hover`/`-tint`）。
+品牌門面只有橘+灰，**不含** success/warning/danger/info。內部工具（後台／表單）需功能回饋色時，另引入 `tokens/tokens-app.css`（npm：`@import "@megapower/design-tokens/tokens-app.css"`），取得 muted 版 `--color-success` #2E7D55／`--color-warning` #9A6700／`--color-danger` #B42318／`--color-info` #2C5282（皆過白底 WCAG AA、各附 `-hover`/`-tint`）。
 
 - ✅ 僅限功能回饋：表單驗證錯誤、操作 toast、危險動作確認。
 - ❌ 禁用於品牌敘事，與狀態進度（狀態一律用 `.status` 橘+灰）。
