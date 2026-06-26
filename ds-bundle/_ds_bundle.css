@@ -47,13 +47,16 @@ p {
 }
 
 /* === Links === */
+/* 連結走深灰 + 永久底線：品牌橘 #F06000 對白 3.29:1（小字 fail WCAG AA），故不當連結文字色；
+   底線提供非顏色辨識（WCAG 1.4.1）。hover 點題品牌橘。與 .status 同理——橘只進 icon/圖形、文字走深灰。 */
 a {
-  color: var(--color-primary);
-  text-decoration: none;
+  color: var(--color-text);
+  text-decoration: underline;
 }
 
 a:hover {
-  text-decoration: underline;
+  text-decoration-color: var(--color-primary); /* hover 底線轉品牌橘（橘當圖形、非文字色，自洽鐵則），文字維持深灰 14.63:1 */
+  text-decoration-thickness: 2px;
 }
 
 /* === Media === */
@@ -113,6 +116,7 @@ button {
 .btn--primary:hover {
   background: var(--color-primary-hover);
   border-color: var(--color-primary-hover);
+  color: #fff; /* 鎖定白字：generic a:hover{color} specificity(0,1,1) 高於 .btn(0,1,0)，<a class="btn"> hover 時文字會被染成 primary-hover、與底色同色而隱形 */
 }
 
 .btn--secondary {
@@ -123,6 +127,7 @@ button {
 .btn--secondary:hover {
   background: var(--color-bg-soft);
   border-color: var(--color-text-muted);
+  color: var(--color-text); /* 同上：鎖定深灰，避免被 generic a:hover 染橘 */
 }
 
 .btn--outline {
@@ -231,6 +236,7 @@ button {
   left: 1rem;
   background: var(--color-primary);
   color: #fff;
+  text-decoration: none; /* 防 generic a{underline} 在 focus 露出時冒底線 */
   padding: var(--space-2) var(--space-4);
   border-radius: 0 0 var(--radius-md) var(--radius-md);
   z-index: 9999;
@@ -239,6 +245,10 @@ button {
 
 .skip-link:focus {
   top: 0;
+}
+
+.skip-link:hover {
+  color: #fff; /* 防 generic a:hover 把白字染成 primary-hover、疊在橘底上低對比 */
 }
 
 .sr-only {
