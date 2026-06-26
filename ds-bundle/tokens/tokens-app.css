@@ -1,0 +1,28 @@
+/* ============================================================
+   Megapower Design System — 應用層語意色（opt-in，非品牌門面）
+   僅內部工具引入；品牌門面 megapower.css 不含此檔（勿 @import 進 global/megapower）。
+   SoT：megaweb/src/styles/tokens-app.css
+   ------------------------------------------------------------
+   使用邊界：
+   ✅ 僅限功能回饋——表單驗證錯誤、操作結果 toast、危險動作確認。
+   ❌ 禁用於品牌敘事（hero / 行銷區塊配色）。
+   ❌ 禁用於狀態進度——狀態一律用 --color-status-*（橘+灰，見 tokens.css），
+      不准用 success=綠 表示「已結案」。
+   ⚠ 三色皆過白底 AA(4.5) 但皆不過深底；深底（toast / .section--dark）上
+      改「白字 + 彩色 icon」或淺化變體，勿當深底文字色。
+   收編對象：MegaQ #16a34a（對白 3.3:1 fail AA）、MegaQuotr #10B981——皆改 import 本檔對齊。
+   ============================================================ */
+:root {
+  /* 沉穩低飽和、與品牌橘 #F06000 和諧；色值經 WCAG AA 實測選定 */
+  --color-success:       #2E7D55;  /* 白 5.02:1 ✓ 沉穩森綠 */
+  --color-success-hover: #266A48;
+  --color-success-tint:  color-mix(in srgb, var(--color-success) 12%, transparent);
+
+  --color-warning:       #9A6700;  /* 白 4.87:1 ✓ 暗赭金（刻意遠離品牌橘避免混淆）*/
+  --color-warning-hover: #835700;
+  --color-warning-tint:  color-mix(in srgb, var(--color-warning) 12%, transparent);
+
+  --color-danger:        #B42318;  /* 白 6.57:1 ✓ 沉穩磚紅 */
+  --color-danger-hover:  #97180F;
+  --color-danger-tint:   color-mix(in srgb, var(--color-danger) 12%, transparent);
+}

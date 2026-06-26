@@ -19,6 +19,7 @@
 | Actions | Button | `.btn` + `--primary/secondary/outline` + `--sm/md/lg` |
 | Layout | Section | `.section` + `--soft/dark`、`.section__inner(--narrow)` |
 | Surfaces | Card | `.card` + `--soft/accent/interactive` |
+| Feedback | Status | `.status` + `--received/active/done/cancelled`（橘+灰+icon 狀態語言） |
 
 ## 公開引用（SoT）
 
@@ -29,3 +30,13 @@
 ```
 
 更新 megaweb 來源並重新部署後，所有引用此 URL 的專案自動同步，無須各自複製。
+
+## 應用層語意色（opt-in，非品牌門面）
+
+品牌門面 `megapower.css` 只有橘+灰，**不含** success/warning/danger。內部工具（後台／表單）需要功能回饋語意色時，另外引入 `tokens/tokens-app.css`（muted 版、過 WCAG AA）：
+
+```css
+@import "@megapower/design-tokens/tokens-app.css";  /* 才取得 --color-success/-warning/-danger */
+```
+
+僅限功能回饋（表單驗證、操作 toast、危險確認）；狀態進度一律用上表 `.status`（橘+灰），勿用語意色表示狀態。

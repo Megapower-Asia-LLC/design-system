@@ -26,6 +26,11 @@
 ### 卡片 `.card`
 - 變體：`.card--soft`（淺灰底）｜`.card--accent`（左側品牌橘邊條）｜`.card--interactive`（hover 上浮 + 橘框）
 
+### 狀態徽章 `.status`
+- 四態：`.status--received`（○ 灰，已收到）｜`.status--active`（● 橘，處理中）｜`.status--done`（✓ 深灰，已結案）｜`.status--cancelled`（✕ 灰虛線框，取消）
+- 內含 `.status__icon`（icon slot）；WCAG 1.4.1：icon 形狀 + 文字並存、不單靠顏色。
+- **品牌橘對白僅 3.29:1（小字 fail AA）**，故橘只進 `.status__icon`（圖形 3:1 門檻），文字一律深灰。狀態進度一律用此橘+灰套，勿用語意色（如 success 綠）表狀態。
+
 ### 其他 utility
 `.container`（限寬置中）、`.skip-link`、`.sr-only`、`:focus-visible`（品牌橘外框）。
 
@@ -35,6 +40,15 @@
 - 字級：`--text-sm/base/lg/xl`、`--text-display-md/lg`（responsive `clamp`）
 - 間距：`--space-2/4/6/8/12`、`--spacing-section`、`--spacing-container`、`--max-width-content/narrow`
 - 圓角：`--radius-sm/md/lg/full`；陰影：`--shadow-sm/md/lg`；過場：`--transition-fast/base`
+- 狀態：`--color-status-received/active/done/cancelled`（映射 muted／primary／text／muted，狀態語言用）
+
+## 應用層語意色（opt-in，非品牌門面）
+
+品牌門面只有橘+灰，**不含** success/warning/danger。內部工具（後台／表單）需功能回饋色時，另引入 `tokens/tokens-app.css`（npm：`@import "@megapower/design-tokens/tokens-app.css"`），取得 muted 版 `--color-success` #2E7D55／`--color-warning` #9A6700／`--color-danger` #B42318（皆過白底 WCAG AA、各附 `-hover`/`-tint`）。
+
+- ✅ 僅限功能回饋：表單驗證錯誤、操作 toast、危險動作確認。
+- ❌ 禁用於品牌敘事，與狀態進度（狀態一律用 `.status` 橘+灰）。
+- ⚠ 三色皆不過深底；深底（toast／`.section--dark`）改白字 + 彩色 icon。
 
 ## 真相位置
 

@@ -1,6 +1,4 @@
-/* === Megapower Design System — base + component styles ===
-   Source of truth: megaweb/src/styles/{base,components}.css + global.css utilities
-   Reachable from styles.css @import closure. Do not hand-edit; regenerate from source. */
+/* Megapower Design System — base + component styles (generated) */
 
 /* === Reset === */
 *,
@@ -177,6 +175,53 @@ button {
   box-shadow: var(--shadow-md);
   border-color: var(--color-primary);
 }
+
+/* === Status badge === */
+/* 狀態語言：橘+灰，WCAG 1.4.1 不單靠顏色——icon 形狀 + 文字並存。
+   品牌橘對白只有 3.29:1（小字 fail AA），故橘僅進 .status__icon（圖形 3:1 過關），
+   文字一律深灰/muted（≥4.76:1）。四態 icon：received ○ / active ● / done ✓ / cancelled ✕。 */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-text);
+  background: var(--color-bg);
+  white-space: nowrap;
+}
+.status__icon { font-size: 0.9em; line-height: 1; }   /* 色彩唯一載體 */
+
+.status--received {
+  color: var(--color-status-received);
+  background: var(--color-bg-soft);
+}
+.status--received .status__icon { color: var(--color-status-received); }
+
+.status--active {
+  color: var(--color-text);                            /* 文字維持深灰可讀 */
+  background: var(--color-primary-soft-bg);            /* 淡橘底點題 */
+  border-color: color-mix(in srgb, var(--color-primary) 30%, var(--color-border));
+}
+.status--active .status__icon { color: var(--color-status-active); }  /* 橘僅在 ● 圖形 */
+
+.status--done {
+  color: var(--color-status-done);
+  background: var(--color-bg-soft);
+}
+.status--done .status__icon { color: var(--color-status-done); }
+
+.status--cancelled {
+  color: var(--color-status-cancelled);
+  background: var(--color-bg);
+  border-style: dashed;                                /* 虛線區隔，不靠紅 */
+  border-color: var(--color-status-cancelled);
+}
+.status--cancelled .status__icon { color: var(--color-status-cancelled); }
 
 /* === Utilities (from global.css) === */
 /* === Skip link & a11y utility（既有保留） === */

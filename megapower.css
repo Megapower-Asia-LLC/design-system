@@ -1,9 +1,3 @@
-/* ============================================================
-   Megapower Design System (Single Source of Truth)
-   群兆視覺設計系統 — 公開引用版，請勿手改；由 megaweb/src/styles 產生
-   用法：<link rel="stylesheet" href="https://<megaweb-domain>/ds/megapower.css">
-   ============================================================ */
-
 :root {
   /* === Color (6 tokens) === */
   --color-bg:         #FFFFFF;
@@ -24,6 +18,14 @@
   --color-bg-alt:        var(--color-bg-soft);
   --color-secondary:     var(--color-text);
   --color-primary-light: var(--color-primary-tint);
+
+  /* === Status semantics（映射既有橘+灰，不新增色值）=== */
+  /* 狀態語言：橘只當「處理中」活躍色，其餘走灰階；橘不可當文字色（對白 3.29:1 fail AA），
+     僅作 icon/圓點（圖形 3:1 過關）。見 components.css .status。 */
+  --color-status-received:  var(--color-text-muted);  /* ○ 已收到：待確認、非主動 */
+  --color-status-active:    var(--color-primary);     /* ● 處理中：唯一活躍色 */
+  --color-status-done:      var(--color-text);        /* ✓ 已結案：終態，不搶眼 */
+  --color-status-cancelled: var(--color-text-muted);  /* ✕ 取消：終態異常，靠虛線/icon 區隔 */
 
   /* === Typography === */
   /* per 2026-05-21 PSI Phase C：移除 web font、用 system font stack
@@ -77,9 +79,7 @@
 @media (max-width: 768px) {
   :root { --spacing-section: 3.5rem; }
 }
-/* === Megapower Design System — base + component styles ===
-   Source of truth: megaweb/src/styles/{base,components}.css + global.css utilities
-   Reachable from styles.css @import closure. Do not hand-edit; regenerate from source. */
+/* Megapower Design System — base + component styles (generated) */
 
 /* === Reset === */
 *,
@@ -256,6 +256,53 @@ button {
   box-shadow: var(--shadow-md);
   border-color: var(--color-primary);
 }
+
+/* === Status badge === */
+/* 狀態語言：橘+灰，WCAG 1.4.1 不單靠顏色——icon 形狀 + 文字並存。
+   品牌橘對白只有 3.29:1（小字 fail AA），故橘僅進 .status__icon（圖形 3:1 過關），
+   文字一律深灰/muted（≥4.76:1）。四態 icon：received ○ / active ● / done ✓ / cancelled ✕。 */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-text);
+  background: var(--color-bg);
+  white-space: nowrap;
+}
+.status__icon { font-size: 0.9em; line-height: 1; }   /* 色彩唯一載體 */
+
+.status--received {
+  color: var(--color-status-received);
+  background: var(--color-bg-soft);
+}
+.status--received .status__icon { color: var(--color-status-received); }
+
+.status--active {
+  color: var(--color-text);                            /* 文字維持深灰可讀 */
+  background: var(--color-primary-soft-bg);            /* 淡橘底點題 */
+  border-color: color-mix(in srgb, var(--color-primary) 30%, var(--color-border));
+}
+.status--active .status__icon { color: var(--color-status-active); }  /* 橘僅在 ● 圖形 */
+
+.status--done {
+  color: var(--color-status-done);
+  background: var(--color-bg-soft);
+}
+.status--done .status__icon { color: var(--color-status-done); }
+
+.status--cancelled {
+  color: var(--color-status-cancelled);
+  background: var(--color-bg);
+  border-style: dashed;                                /* 虛線區隔，不靠紅 */
+  border-color: var(--color-status-cancelled);
+}
+.status--cancelled .status__icon { color: var(--color-status-cancelled); }
 
 /* === Utilities (from global.css) === */
 /* === Skip link & a11y utility（既有保留） === */

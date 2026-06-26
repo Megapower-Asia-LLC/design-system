@@ -1,0 +1,23 @@
+<!-- @dsStatus group="Feedback" -->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Status</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  body { padding: 2rem; background: var(--color-bg-soft); }
+  .row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; max-width: 760px; }
+  p.note { color: var(--color-text-muted); font-size: var(--text-sm); max-width: 760px; margin-top: 1.5rem; line-height: 1.6; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <span class="status status--received"><span class="status__icon" aria-hidden="true">○</span>已收到</span>
+    <span class="status status--active"><span class="status__icon" aria-hidden="true">●</span>處理中</span>
+    <span class="status status--done"><span class="status__icon" aria-hidden="true">✓</span>已結案</span>
+    <span class="status status--cancelled"><span class="status__icon" aria-hidden="true">✕</span>案件已取消</span>
+  </div>
+  <p class="note">狀態語言＝橘 + 灰 + icon + 文字。品牌橘對白只有 3.29:1（小字 fail AA），故橘僅在 <code>.status__icon</code>（圖形 3:1 過關），文字一律深灰／muted。WCAG 1.4.1：不單靠顏色，icon 形狀（○●✓✕）+ 文字並存；取消態以虛線框與「已結案」明確區隔。</p>
+</body>
+</html>
