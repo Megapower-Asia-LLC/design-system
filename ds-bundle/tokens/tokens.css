@@ -19,6 +19,14 @@
   --color-secondary:     var(--color-text);
   --color-primary-light: var(--color-primary-tint);
 
+  /* === Status semantics（映射既有橘+灰，不新增色值）=== */
+  /* 狀態語言：橘只當「處理中」活躍色，其餘走灰階；橘不可當文字色（對白 3.29:1 fail AA），
+     僅作 icon/圓點（圖形 3:1 過關）。見 components.css .status。 */
+  --color-status-received:  var(--color-text-muted);  /* ○ 已收到：待確認、非主動 */
+  --color-status-active:    var(--color-primary);     /* ● 處理中：唯一活躍色 */
+  --color-status-done:      var(--color-text);        /* ✓ 已結案：終態，不搶眼 */
+  --color-status-cancelled: var(--color-text-muted);  /* ✕ 取消：終態異常，靠虛線/icon 區隔 */
+
   /* === Typography === */
   /* per 2026-05-21 PSI Phase C：移除 web font、用 system font stack
      原 @fontsource Noto Sans TC subset 路線觸發 N+1 woff2 request、每個 2.3s cold start、合計 ~6.5s render-blocking

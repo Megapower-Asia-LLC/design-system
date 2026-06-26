@@ -44,3 +44,13 @@ export const logo = {
   qrWebsiteLight: `${BASE}/qr-website-light.png`,
   qrWebsiteDark: `${BASE}/qr-website-dark.png`,
 };
+
+// 狀態語言（橘+灰映射；對應 CSS --color-status-*，閉合 CSS/JS 兩份副本缺口）
+// 語意色（success/warning/danger）刻意不在此匯出——它們是 opt-in CSS（tokens-app.css），
+// 品牌門面 JS 與 CSS 一致只含橘+灰。
+export const statusColor = {
+  received:  color.textMuted,  // ○ 已收到
+  active:    color.primary,    // ● 處理中（唯一活躍色）
+  done:      color.text,       // ✓ 已結案
+  cancelled: color.textMuted,  // ✕ 取消
+};

@@ -8,7 +8,10 @@
     ".": "./index.js",
     "./tokens.js": "./tokens.js",
     "./css": "./megapower.css",
-    "./tokens.css": "./ds-bundle/tokens/tokens.css"
+    "./tokens.css": "./ds-bundle/tokens/tokens.css",
+    "./tokens-app.css": "./ds-bundle/tokens/tokens-app.css",
+    "./logo/*": "./ds-bundle/logo/*",
+    "./ds-bundle/*": "./ds-bundle/*"
   },
   "files": [
     "index.js",

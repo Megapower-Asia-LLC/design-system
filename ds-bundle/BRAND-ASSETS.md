@@ -31,3 +31,11 @@
 <img src="https://www.megapower.asia/ds/logo/logo-mark-light.png"
      alt="群兆資訊" width="40" height="40">
 ```
+
+## 自託管 / vendoring 取用
+
+含敏感資料或需嚴格 CSP `self-only` 的頁面（如客戶追蹤頁），**勿**引用上面的公開 URL——logo 亦隨 npm 套件發佈，可經 `@megapower/design-tokens/logo/<檔名>` 取得，用 vendoring 腳本複製進自家 `public/assets/logos/`（見 design-system MAINTENANCE §7），頁面以相對路徑引用：
+
+```html
+<img src="/assets/logos/logo-mark-light.png" alt="群兆資訊" width="40" height="40">
+```
