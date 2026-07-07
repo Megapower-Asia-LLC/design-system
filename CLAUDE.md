@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 最重要的事：這個 repo 是下游，不是真相來源
 
-**單一權威來源（SoT）是 `megaweb` repo 的 `src/styles/*.css`**（並列於 `C:\Project\megaweb`）。本 repo 的 `megapower.css`、`ds-bundle/`、`CONVENTIONS.md` 全都是從 megaweb **產生／複製**而來。
+**單一權威來源（SoT）是 `megaweb` repo 的 `src/styles/*.css`**（Mac 工作正本並列於 `~/Projects/_Megapower/megaweb`；雙 checkout 收斂見 MAINTENANCE）。本 repo 的 `megapower.css`、`ds-bundle/`、`CONVENTIONS.md` 全都是從 megaweb **產生／複製**而來。
 
 - **不要手改** `megapower.css`、`ds-bundle/_ds_bundle.css`、`ds-bundle/tokens/tokens.css`、`CONVENTIONS.md`——它們是衍生檔，下次同步會被覆蓋。要改品牌，改 megaweb SoT 再依 `MAINTENANCE.md` 流程同步回來。
 - 各專案應「引用」品牌（CDN link 或 npm 套件），絕不「複製」色碼。各專案寫死顏色＝品牌走鐘。
