@@ -1,0 +1,22 @@
+Copyright (c) 2026 群兆資訊 Megapower Asia LLC. All rights reserved.
+
+# 群兆設計系統授權條款（Megapower Design System License）
+
+本 repository 同時包含「品牌資產」與「程式碼」，兩者適用不同條款。
+
+## 1. 品牌資產（Brand Assets）
+以下為群兆資訊之商標與受保護品牌資產，保留一切權利：
+- logo 與 QR 圖檔（`ds-bundle/logo/` 下所有 `logo-*`、`qr-*` 檔）
+- 品牌主色 `#F06000` 與整體視覺識別
+
+未經群兆資訊書面授權，不得將上述資產用於群兆資訊及其官方專案以外之任何用途，
+包含但不限於重製、改作、變形、改色、轉售，或以之宣稱與群兆資訊之關聯。
+
+## 2. 程式碼（CSS / design token / JavaScript / 腳本）
+本 repo 之 CSS、design token、JavaScript 與腳本，授權群兆資訊（Megapower Asia LLC）
+及其內部或委外開發之官方專案使用。未經授權，不得用於非群兆資訊之第三方產品。
+
+## 3. 保留
+群兆資訊保留日後調整本條款之權利（包含改為開放原始碼授權）。
+
+授權洽詢：aiken@megapower.asia

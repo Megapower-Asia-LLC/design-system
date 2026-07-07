@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# CodeGraph 索引（本機工具產物，非 repo 內容）
+.codegraph/
+
+# 依賴與日誌
+node_modules/
+*.log
+
+# 編輯器 / 暫存
+.vscode/
+.idea/
+*.tmp
