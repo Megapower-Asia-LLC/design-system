@@ -1,3 +1,4 @@
+/* Megapower Design System — content sha256:f60510a03d84 — generated 2026-07-08T11:13:26.846Z (base b25b60a) — 勿手改；改 src/styles 後執行 scripts/gen-ds.mjs 重新產生 */
 :root {
   /* === Color (6 tokens) === */
   --color-bg:         #FFFFFF;
@@ -213,7 +214,9 @@ button {
 
 .btn--outline {
   background: transparent;
-  color: var(--color-primary);
+  /* per 2026-07-07 Aiken 拍板：文字改深灰、橘只留邊框與 hover——原 color: var(--color-primary)
+     直接以橘作文字色（對白 3.29:1 fail AA）違反自家鐵則，且給下游錯示範（MegaQ 自造彩色按鈕前科） */
+  color: var(--color-text);
   border-color: var(--color-primary);
 }
 .btn--outline:hover {

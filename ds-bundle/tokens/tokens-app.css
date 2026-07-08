@@ -10,6 +10,8 @@
       不准用 success=綠 表示「已結案」。
    ⚠ 三色皆過白底 AA(4.5) 但皆不過深底；深底（toast / .section--dark）上
       改「白字 + 彩色 icon」或淺化變體，勿當深底文字色。
+   ⚠ tint（12%）淺底上勿以同色 base 當文字——success 對自身 tint 僅 4.28:1、
+      warning 僅 4.17:1，皆 fail AA；tint 底上的文字用 -hover 深化版或深灰 --color-text。
    收編對象：MegaQ #16a34a（對白 3.3:1 fail AA）、MegaQuotr #10B981——皆改 import 本檔對齊。
    info 為 MegaQ badge/連結既有需求收編而納入（muted 鋼藍）；purple 通用性低，暫不納入。
    ============================================================ */
