@@ -65,8 +65,10 @@ gh release create "v$(node -p "require('./package.json').version")" --generate-n
 → 各 node 前端跑 `npm update @megapower/design-tokens` + 重 build → 跟上；緊急回滾＝下游把依賴改成 `#semver:0.x.y` 釘舊版。
 
 **下游 npm 消費專案治理範本（一次性設定，寫進各專案）**：
-- 依賴字串用 semver range：`"@megapower/design-tokens": "github:Megapower-Asia-LLC/design-system#semver:^0.2"`（`npm update` 只升相容版，不再直接吃 main HEAD）
-- **lockfile 必須 commit**、CI/部署一律 `npm ci`（否則 semver 治理破功）
+- npm 專案依賴字串用 semver range：`"@megapower/design-tokens": "github:Megapower-Asia-LLC/design-system#semver:^0.2"`（`npm update` 只升相容版，不再直接吃 main HEAD）
+- **bun 專案（如 AidRadar）不支援 `#semver:` 協定**（實測 404）——改嚴格 tag 釘版 `github:Megapower-Asia-LLC/design-system#v0.2.0`，升級時手動改 tag
+- **lockfile 必須 commit**、CI/部署一律 `npm ci`（bun 用 `bun install --frozen-lockfile`），否則釘版治理破功
+- 現況：MegaQ frontend/backend＝`#semver:^0.2`；AidRadar＝`#v0.2.0`（bun）
 
 ### Step 5 — inline 專案半自動跟上
 PrismSGA、MegaQuotr（原 quotr-py）、報價單模板（PDF/DOCX 無法引用外部），用批次替換（`sd`）：
