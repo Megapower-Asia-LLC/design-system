@@ -47,11 +47,26 @@ cp ../megaweb/scripts/check-brand.mjs scripts/check-brand.mjs   # 守門腳本 S
 node scripts/check-brand.mjs   # package 模式驗證同步結果，紅燈就是漏了上面某步
 ```
 （旁路 hash 檔 `megapower.<hash12>.css` 留在 megaweb，不同步過來。）
-**⚠ 重要：手動同步 `tokens.js`** — 它是 JS 匯出，跟 CSS 是**兩份**，改色要兩處都改（`color.primary` 等）；改了狀態色也要同步 `statusColor`。語意色（tokens-app.css）刻意不進 `tokens.js`（保持 opt-in、CSS-only，與門面一致）。`package.json` 的 `exports`（`./tokens-app.css`、`./logo/*`、`./ds-bundle/*`）為一次性設定，新增子路徑時才動。
+**`tokens.js` 由腳本生成，勿手改**（兩份副本陷阱已於 Phase 2 消滅）：
 ```bash
-git add -A && git commit -m "chore(brand): sync tokens" && git push
+node scripts/build-tokens.mjs   # tokens.css → tokens.js（CI 會用 --check 驗證一致）
 ```
-→ 各 node 前端跑 `npm update @megapower/design-tokens` + 重 build → 跟上。
+語意色（tokens-app.css）刻意不進 `tokens.js`（保持 opt-in、CSS-only，與門面一致）。`package.json` 的 `exports` 為一次性設定，新增子路徑時才動。
+
+**接著發版（semver，勿跳過）**——下游靠 tag 釘版與回滾：
+```bash
+git add -A && git commit -m "chore(brand): sync tokens"
+npm version patch   # token 微調用 patch；改色/新元件/視覺變更用 minor（自動 bump + commit + 打 v0.x.y tag）
+git push --follow-tags
+gh pr create … && gh pr merge --admin …   # repo 強制 PR
+HASH=$(sed -n '1s/.*content sha256:\([0-9a-f]*\).*/\1/p' megapower.css)
+gh release create "v$(node -p "require('./package.json').version")" --generate-notes --notes "CDN 內容指紋：content sha256:${HASH}（對應 www.megapower.asia/ds/megapower.css 檔頭與旁路檔 megapower.${HASH}.css）"
+```
+→ 各 node 前端跑 `npm update @megapower/design-tokens` + 重 build → 跟上；緊急回滾＝下游把依賴改成 `#semver:0.x.y` 釘舊版。
+
+**下游 npm 消費專案治理範本（一次性設定，寫進各專案）**：
+- 依賴字串用 semver range：`"@megapower/design-tokens": "github:Megapower-Asia-LLC/design-system#semver:^0.2"`（`npm update` 只升相容版，不再直接吃 main HEAD）
+- **lockfile 必須 commit**、CI/部署一律 `npm ci`（否則 semver 治理破功）
 
 ### Step 5 — inline 專案半自動跟上
 PrismSGA、MegaQuotr（原 quotr-py）、報價單模板（PDF/DOCX 無法引用外部），用批次替換（`sd`）：
