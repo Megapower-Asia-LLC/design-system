@@ -8,7 +8,7 @@
 
 載入單一入口 `styles.css`（已 `@import` `tokens/tokens.css` 與 `_ds_bundle.css`），即取得全部 token 與元件 class。字體為 system font stack、字重 600、標題 700。品牌主色 `var(--color-primary)` = `#F06000`。
 
-詳見使用慣例（`.design-sync/conventions.md`）：含完整 class 語彙、token 清單與慣用範例。
+詳見使用慣例（本包內 `CONVENTIONS.md`）：含完整 class 語彙、token 清單與慣用範例。
 
 ## 元件清單
 
@@ -33,10 +33,10 @@
 
 ## 應用層語意色（opt-in，非品牌門面）
 
-品牌門面 `megapower.css` 只有橘+灰，**不含** success/warning/danger。內部工具（後台／表單）需要功能回饋語意色時，另外引入 `tokens/tokens-app.css`（muted 版、過 WCAG AA）：
+品牌門面 `megapower.css` 只有橘+灰，**不含** success/warning/danger/info。內部工具（後台／表單）需要功能回饋語意色時，另外引入 `tokens/tokens-app.css`（muted 版、過白底 WCAG AA）：
 
 ```css
-@import "@megapower/design-tokens/tokens-app.css";  /* 才取得 --color-success/-warning/-danger */
+@import "@megapower/design-tokens/tokens-app.css";  /* 才取得 --color-success/-warning/-danger/-info（各附 -hover/-tint） */
 ```
 
-僅限功能回饋（表單驗證、操作 toast、危險確認）；狀態進度一律用上表 `.status`（橘+灰），勿用語意色表示狀態。
+僅限功能回饋（表單驗證、操作 toast、危險確認、資訊提示）；狀態進度一律用上表 `.status`（橘+灰），勿用語意色表示狀態。⚠ tint（12%）淺底上勿以同色 base 當文字（success 4.28:1、warning 4.17:1 fail AA）——文字用 `-hover` 深化版或深灰 `--color-text`。
