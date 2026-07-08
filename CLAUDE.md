@@ -11,14 +11,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **不要手改** `megapower.css`、`ds-bundle/_ds_bundle.css`、`ds-bundle/tokens/tokens.css`、`CONVENTIONS.md`——它們是衍生檔，下次同步會被覆蓋。要改品牌，改 megaweb SoT 再依 `MAINTENANCE.md` 流程同步回來。
 - 各專案應「引用」品牌（CDN link 或 npm 套件），絕不「複製」色碼。各專案寫死顏色＝品牌走鐘。
 
-## 兩份副本陷阱（最常見的錯）
+## 衍生檔與守門（原「兩份副本陷阱」已消滅）
 
-色值在這個 repo 存在**兩份各自獨立維護的副本**，改色必須兩處都改，否則 CSS 與 JS 不一致：
+`tokens.js` 自 Phase 2 起是**生成物**：`node scripts/build-tokens.mjs` 從 `ds-bundle/tokens/tokens.css` 生成，勿手改（CI 以 `--check` 驗證一致）。改色只改 megaweb SoT，同步後跑生成即可，不再有手動雙寫。
 
-1. **CSS**：`megapower.css` + `ds-bundle/tokens/tokens.css`（從 megaweb 複製）
-2. **JS**：`tokens.js`（手動維護，**不會**從 megaweb 自動產生）
-
-例如改主色要同時動 `megapower.css` 的 `--color-primary` 與 `tokens.js` 的 `color.primary`；改狀態色同理要同步 `tokens.js` 的 `statusColor`。
+守門：`scripts/check-brand.mjs`（package 模式；SoT 在 megaweb/scripts/，此為同步副本）+ `scripts/build-tokens.mjs --check`，兩者接在 `.github/workflows/brand-check.yml`（PR 掛 `break-glass` label 可緊急跳過，留 audit warning）。megaweb 端另有部署前主 gate（Pages build 必經）。
 
 ## 三條發布管道（同一份 SoT，服務不同消費端）
 

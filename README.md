@@ -17,11 +17,13 @@ HTML 加一行即可（零安裝、零 build，任何技術棧）：
 
 ## 作為 npm 套件安裝（React / Tailwind 等需編譯的專案）
 
-純靜態頁直接 link 上面的 CSS 即可；需要在 build 階段使用 token 的專案，可把本 repo 當套件安裝——**git 依賴，免 publish、免註冊 registry**：
+純靜態頁直接 link 上面的 CSS 即可；需要在 build 階段使用 token 的專案，可把本 repo 當套件安裝——**git 依賴 + semver tag 釘版，免 publish、免註冊 registry**：
 
 ```bash
-npm install github:Megapower-Asia-LLC/design-system
+npm install "github:Megapower-Asia-LLC/design-system#semver:^0.2"
 ```
+
+之後 `npm update` 只會升到相容版（不會直接吃 main 最新 commit）；緊急回滾把依賴改成 `#semver:0.x.y` 釘指定版。**lockfile 必須 commit、CI 一律 `npm ci`**，semver 治理才有效。
 
 ```js
 // 讀 token（顏色、字體、間距、logo URL）
@@ -34,7 +36,7 @@ import { color, fontSans, logo } from "@megapower/design-tokens";
 @import "@megapower/design-tokens/css";
 ```
 
-更新品牌：改 megaweb 來源 → 同步本 repo → 各專案 `npm update @megapower/design-tokens`。
+更新品牌：改 megaweb 來源 → 同步本 repo + 發版（見 MAINTENANCE）→ 各專案 `npm update @megapower/design-tokens`。
 
 ## 樣式語彙（BEM class）
 

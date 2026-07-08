@@ -1,0 +1,30 @@
+# 配銷層守門（單條最小 CI）：check-brand（package 模式）+ build-tokens --check
+# break-glass：PR 掛上 `break-glass` label 可跳過（緊急發版用），會留 warning 供事後 audit。
+name: brand-check
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: break-glass 檢查
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'break-glass')
+        run: |
+          echo "::warning::break-glass label 啟用——本 PR 跳過品牌守門。緊急情境限定；事後請補跑 node scripts/check-brand.mjs && node scripts/build-tokens.mjs --check 並修復。"
+          echo "SKIP=1" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v4
+        if: env.SKIP != '1'
+      - uses: actions/setup-node@v4
+        if: env.SKIP != '1'
+        with:
+          node-version: 20
+      # 零依賴腳本，無需 npm install
+      - name: check-brand（package 模式）
+        if: env.SKIP != '1'
+        run: node scripts/check-brand.mjs
+      - name: build-tokens --check（tokens.js 與 tokens.css 一致）
+        if: env.SKIP != '1'
+        run: node scripts/build-tokens.mjs --check
