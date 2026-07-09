@@ -71,9 +71,26 @@ const scan = (file) => {
   try { text = readFileSync(file, 'utf8'); } catch { return; }
   const lines = text.split('\n');
   const isCss = /\.(css|scss)$/.test(file);
+  let inBlockComment = false; // 塊註解狀態機（行號保持正確；註解內容不檢查——「收編註解」等說明文字不誤報）
   lines.forEach((raw, idx) => {
     const n = idx + 1;
-    const line = raw;
+    // 字面 \n 轉義的內嵌 CSS 字串（如 Python assets.py 單行大字串）：拆虛擬子行逐段掃，行號報實體行
+    if (raw.includes('\\n') && raw.length > 200) {
+      for (const sub of raw.split('\\n')) scanLine(sub, n);
+      return;
+    }
+    scanLine(raw, n);
+  });
+
+  function scanLine(line, n) {
+    if (inBlockComment) { if (line.includes('*/')) inBlockComment = false; return; }
+    const trimmed = line.trim();
+    if (trimmed.startsWith('/*') && trimmed.includes('*/')) return;          // 單行完整塊註解
+    if (line.includes('/*') && !line.includes('*/')) inBlockComment = true;  // 開多行塊註解（本行仍檢查註解前的程式碼——保守）
+    if (/^(\/\/|\*)/.test(trimmed)) return;                                   // js 行註解 / 塊註解中段
+    if (trimmed.startsWith('#') && !/^#[0-9a-fA-F]{3,8}\b/.test(trimmed)) return; // py 註解（# 開頭但非色碼）
+    /** 本行是否為 CSS 規則語境（含 JS/PY 字串內嵌 CSS——fork 檔轉字串仍要抓） */
+    const cssCtx = isCss || /^\s*["'`]?\s*\.[\w-]+[^;=]*\{/.test(line);
 
     // R1 禁用色碼
     if (/#F97316/i.test(line)) report(file, n, 'R1', 'Tailwind 橘 #F97316——品牌主色是 #F06000，且應走 var(--color-primary)');
@@ -85,13 +102,13 @@ const scan = (file) => {
     // R2 自造狀態態 / 禁用按鈕——只抓「使用語境」（class 屬性內或 CSS selector），說明文案不算
     const usageContexts = [
       ...[...line.matchAll(/class(?:Name)?\s*=\s*["'`]([^"'`]*)["'`]/g)].map((m) => m[1]),
-      ...(isCss ? [line] : []),
+      ...(cssCtx ? [line] : []),
     ];
     for (const ctx of usageContexts) {
       for (const m of ctx.matchAll(/(?:^|[\s."'`])status--([\w-]+)/g))
         if (!CANONICAL_STATUS.includes(m[1]))
           report(file, n, 'R2', `.status--${m[1]}——業務態不加新 class，映射 canonical 四態（見 CONVENTIONS 映射規約）`);
-      if (isCss ? /\.btn--(success|info)\s*[,{:]/.test(ctx) : /(?:^|\s)btn--(success|info)(?:\s|$)/.test(ctx))
+      if (cssCtx ? /\.btn--(success|info)\s*[,{:]/.test(ctx) : /(?:^|\s)btn--(success|info)(?:\s|$)/.test(ctx))
         report(file, n, 'R2', '.btn--success/.btn--info 已封殺——成功走 toast 回饋、資訊類動作用 secondary/ghost');
     }
 
@@ -99,14 +116,15 @@ const scan = (file) => {
     if (/@font-face|fonts\.googleapis|@fontsource/i.test(line))
       report(file, n, 'R3', 'web font 禁止加回（PSI 效能鐵則）——system font stack 已內建');
 
-    // R4 覆蓋 DS 核心（僅 CSS；基底 selector 而非 modifier/後代）
-    if (isCss && /^\s*\.(btn|status|card|section)\s*[,{]/.test(line))
+    // R4 覆蓋 DS 核心（基底 selector 而非 modifier/後代；含 JS/PY 字串內嵌 CSS）
+    if (/^\s*["'`]?\s*\.(btn|status|card|section)\s*[,{]/.test(line))
       report(file, n, 'R4', `重新宣告 DS 核心 .${line.match(/\.(btn|status|card|section)/)[1]} 基底——下游不 fork 門面元件；要改品牌提 PR 到 design-system`);
 
-    // R5 橘做文字色（icon selector 例外）
-    if (/(?<![-\w])color\s*:\s*(var\(--color-primary(-hover)?\)|#(F06000|D45200))/i.test(line) && !/status__icon|__icon/.test(line))
-      report(file, n, 'R5', '品牌橘不做文字色（對白 3.29:1 fail AA）——文字走深灰，橘只進 icon/邊框/底色');
-  });
+    // R5 橘做文字色（icon 例外：本行或上兩實體行含 __icon——多行格式不誤報）
+    const nearIcon = /__icon/.test(line) || /__icon/.test(lines[n - 2] ?? '') || /__icon/.test(lines[n - 3] ?? '');
+    if (/(?<![-\w])color\s*:\s*(var\(--color-primary(-hover)?\)|#(F06000|D45200))/i.test(line) && !nearIcon)
+      report(file, n, 'R5', '品牌橘不做文字色（對白 3.29:1 fail AA）——文字走深灰，橘只進 icon/邊框/底色（≥24px 粗體大標 3:1 過關屬合法，人工複核）');
+  }
 };
 
 if (!existsSync(ROOT) || !statSync(ROOT).isDirectory()) { console.error(`✗ ds-guard：掃描起點不存在（${ROOT}）`); process.exit(1); }

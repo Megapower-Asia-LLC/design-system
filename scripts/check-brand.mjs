@@ -113,7 +113,7 @@ if (MODE === 'megaweb') {
   globalLines.forEach((l, i) => { if (/^\s*@import\b/.test(l)) lastImport = i; });
   if (lastImport === -1) fail('derive', 'global.css 找不到 @import 錨點——尾段切割配方失效');
   const globalTail = globalLines.slice(lastImport + 1).join('\n').replace(/^\n+/, '');
-  for (const sentinel of ['.skip-link', '.sr-only', ':focus-visible'])
+  for (const sentinel of ['.skip-link', '.sr-only', ':focus-visible', '@media print'])
     if (!globalTail.includes(sentinel)) fail('derive', `global.css 尾段缺哨兵「${sentinel}」——utilities 被切掉`);
   const expectBundle =
     '/* Megapower Design System — base + component styles (generated) */\n\n' +

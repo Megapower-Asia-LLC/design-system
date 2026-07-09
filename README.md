@@ -20,7 +20,7 @@ HTML 加一行即可（零安裝、零 build，任何技術棧）：
 純靜態頁直接 link 上面的 CSS 即可；需要在 build 階段使用 token 的專案，可把本 repo 當套件安裝——**git 依賴 + semver tag 釘版，免 publish、免註冊 registry**：
 
 ```bash
-npm install "github:Megapower-Asia-LLC/design-system#semver:^0.2"
+npm install "github:Megapower-Asia-LLC/design-system#semver:^0.3"
 ```
 
 之後 `npm update` 只會升到相容版（不會直接吃 main 最新 commit）；緊急回滾把依賴改成 `#semver:0.x.y` 釘指定版。**lockfile 必須 commit、CI 一律 `npm ci`**，semver 治理才有效。

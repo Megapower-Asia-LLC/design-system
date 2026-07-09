@@ -5,7 +5,7 @@
 ## 色彩
 
 - 主色 `#F06000`（官方 logo 橘，2026-05-21 拍板）。**不是** Tailwind 的 `#F97316`。
-- **橘不做文字色**：對白僅 3.29:1（小字 fail WCAG AA）。橘只進 icon／圓點／底色／邊框（圖形 3:1 門檻）；文字一律深灰 `#1E293B`／`#64748B`。唯一 selector 級例外：`.btn--primary` 白字壓橘底（品牌識別優先，CI 明列）。
+- **橘不做文字色**：對白僅 3.29:1（小字 fail WCAG AA）。橘只進 icon／圓點／底色／邊框（圖形 3:1 門檻）；文字一律深灰 `#1E293B`／`#64748B`。selector 級例外清單（CI 明列、防擴散）：`.btn--primary`／`.btn--outline:hover`／`.skip-link`——皆為白字壓橘底（品牌識別優先，守圖形級 ≥3.0）。
 - 門面永遠純橘+灰。success/warning/danger/info 是 opt-in（`tokens-app.css`），僅限內部工具功能回饋；tint 淺底上文字用 `-hover` 深化版或深灰。
 - 一律 `var(--…)` token，不寫死色碼（下游可跑 `ds-guard` 自檢）。
 

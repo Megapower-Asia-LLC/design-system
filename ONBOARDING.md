@@ -38,7 +38,7 @@ megaweb（SoT，src/styles/*.css）
 
 **Cloudflare 帳號不可用**
 - CDN 檔案全在 megaweb repo `public/ds/`（git 即備份）：任何靜態託管（另一個 Pages 帳號、Netlify、GitHub Pages）掛上 `www.megapower.asia` 的 DNS（在 Azure，不受 Cloudflare 影響）即可重建，檔案零遺失。
-- 下游 npm/vendored 專案完全不受影響（不依賴 CDN）。
+- 下游 npm/vendored 專案完全不受影響（不依賴 CDN）。⚠ CDN 型下游（servicejdc-fixreq 與官網本身）在重建空窗期會失去樣式——重建順位排最前。
 
 ## 已知且接受的殘餘風險（勿驚訝）
 

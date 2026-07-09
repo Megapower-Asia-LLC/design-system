@@ -1,4 +1,4 @@
-/* Megapower Design System — content sha256:7f39c6c81620 — generated 2026-07-09T06:34:11.923Z (base 34582af) — 勿手改；改 src/styles 後執行 scripts/gen-ds.mjs 重新產生 */
+/* Megapower Design System — content sha256:cd2d7577d26e — generated 2026-07-09T11:37:39.010Z (base c7b707e) — 勿手改；改 src/styles 後執行 scripts/gen-ds.mjs 重新產生 */
 :root {
   /* === Color (6 tokens) === */
   --color-bg:         #FFFFFF;
@@ -271,6 +271,11 @@ button {
 }
 .section--soft { background: var(--color-bg-soft); }
 .section--dark { background: var(--color-text); color: #fff; }
+/* 深底標題與連結：base 的元素級 h1-h6/a 深灰宣告勝過 .section--dark 的繼承白字——
+   沒有這兩條，深底區塊的標題/連結整段隱形（styleguide 審查 headless 實測 1.00:1）。
+   下游先前各自 scoped color:#fff 的 workaround 可逐步移除。 */
+.section--dark :is(h1, h2, h3, h4, h5, h6) { color: #fff; }
+.section--dark a { color: #F1F5F9; }
 
 .section__inner         { max-width: var(--max-width-content); margin-inline: auto; }
 .section__inner--narrow { max-width: var(--max-width-narrow);  margin-inline: auto; }
@@ -504,4 +509,30 @@ button {
 /* === Smooth anchor scrolling with offset for sticky header === */
 [id] {
   scroll-margin-top: 80px;
+}
+/* === Print（Phase 5 最小集）=== */
+/* 報價單/客戶追蹤頁列印場景：深色區塊轉白底、卡片陰影轉框線、按鈕不噴墨底。
+   .status 本就不靠底色辨識（icon+文字，WCAG 1.4.1），瀏覽器不印背景也可讀。 */
+@media print {
+  .skip-link { display: none; }
+  .section--dark {
+    background: #fff !important;
+    color: var(--color-text) !important;
+  }
+  /* 深底規則在 print 轉白後要跟著回深灰，否則近白字印白紙隱形 */
+  .section--dark :is(h1, h2, h3, h4, h5, h6),
+  .section--dark a {
+    color: var(--color-text) !important;
+  }
+  .card {
+    box-shadow: none;
+    border: 1px solid var(--color-border);
+  }
+  /* border shorthand 會重設四邊——accent 左邊條補回（print 用深灰，不噴橘墨） */
+  .card--accent { border-left: 3px solid var(--color-text); }
+  .btn {
+    background: #fff !important;
+    color: var(--color-text) !important;
+    border: 1px solid var(--color-border);
+  }
 }
