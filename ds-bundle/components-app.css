@@ -1,0 +1,54 @@
+/* ============================================================
+   Megapower Design System — 應用層語意元件（opt-in，非品牌門面）
+   Phase 4 新增：帶語意色的元件變體住這裡，品牌門面 megapower.css 永遠純橘+灰。
+   SoT：megaweb/src/styles/components-app.css
+   ------------------------------------------------------------
+   依賴：tokens-app.css（語意色 token）。載入順序：
+     megapower.css → tokens-app.css → components-app.css
+   本檔一律 var(--color-danger, #B42318) 帶 fallback 常值——消費端漏引
+   tokens-app.css 時 degrade 成同色磚紅、不爆版（fallback 與 tokens-app
+   現值一致性由 check-brand 斷言，改語意色時兩處同步）。
+   使用邊界：僅限功能回饋（危險操作、表單驗證）；禁作品牌敘事。
+   ============================================================ */
+
+/* === Button — 語意變體 ============================
+   僅限危險操作（刪除/不可逆動作的確認鈕）。收編基準：MegaQ 實心版
+   （結構與 .btn--primary 完全平行）；MegaQuotr ghost-red 版不收編。 */
+.btn--danger {
+  background: var(--color-danger, #B42318);   /* 白字 6.57:1 過 AA */
+  color: #fff;
+  border-color: var(--color-danger, #B42318);
+}
+.btn--danger:hover {
+  background: var(--color-danger-hover, #97180F);
+  border-color: var(--color-danger-hover, #97180F);
+  color: #fff; /* 鎖定白字：同 .btn--primary 的 generic a:hover specificity 防護 */
+}
+
+/* === Form — 錯誤態 ============================
+   驗證失敗時在控件加 --error modifier；錯誤訊息文字用 .form-error-text 並以
+   aria-describedby 關聯控件、容器 role=alert 或 aria-live（a11y 結構參照
+   servicejdc-fixreq intake-form 寫法）。收編自 MegaQuotr（原 legacy 別名
+   --color-error* 改 canonical danger）。 */
+.form-input--error,
+.form-select--error,
+.form-textarea--error {
+  border-color: var(--color-danger, #B42318);
+}
+
+/* 聚焦時維持 danger 框、光暈換 danger tint——錯誤語境下不切回品牌橘，
+   避免「聚焦後看起來已修好」的誤導；修正後由 JS 移除 modifier 才回橘。 */
+.form-input--error:focus-visible,
+.form-select--error:focus-visible,
+.form-textarea--error:focus-visible {
+  border-color: var(--color-danger, #B42318);
+  box-shadow: 0 0 0 3px var(--color-danger-tint, rgba(180, 35, 24, 0.12));
+}
+
+/* 錯誤訊息文字：danger 對白 6.57:1 過 AA 可承字（語意色文字僅限此功能回饋語境；
+   品牌門面的文字色鐵則不變——橘仍不做文字色）。 */
+.form-error-text {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-danger, #B42318);
+}

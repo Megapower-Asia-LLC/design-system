@@ -5,6 +5,8 @@
 <meta charset="UTF-8">
 <title>Button</title>
 <link rel="stylesheet" href="../../../styles.css">
+<link rel="stylesheet" href="../../../tokens/tokens-app.css">
+<link rel="stylesheet" href="../../../components-app.css">
 <style>
   body { padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem; align-items: flex-start; }
   .row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
@@ -13,20 +15,27 @@
 </head>
 <body>
   <div class="row">
-    <a class="btn btn--primary btn--lg">主要 Primary</a>
-    <a class="btn btn--secondary btn--lg">次要 Secondary</a>
-    <a class="btn btn--outline btn--lg">外框 Outline</a>
+    <a href="#" class="btn btn--primary btn--lg">主要 Primary</a>
+    <a href="#" class="btn btn--secondary btn--lg">次要 Secondary</a>
+    <a href="#" class="btn btn--outline btn--lg">外框 Outline</a>
+    <a href="#" class="btn btn--ghost btn--lg">輔助 Ghost</a>
   </div>
   <div class="row">
-    <a class="btn btn--primary btn--md">Medium</a>
-    <a class="btn btn--secondary btn--md">Medium</a>
-    <a class="btn btn--outline btn--md">Medium</a>
+    <a href="#" class="btn btn--primary btn--md">Medium</a>
+    <a href="#" class="btn btn--secondary btn--md">Medium</a>
+    <a href="#" class="btn btn--outline btn--md">Medium</a>
+    <a href="#" class="btn btn--ghost btn--md">Medium</a>
   </div>
   <div class="row">
-    <a class="btn btn--primary btn--sm">Small</a>
-    <a class="btn btn--secondary btn--sm">Small</a>
-    <a class="btn btn--outline btn--sm">Small</a>
+    <a href="#" class="btn btn--primary btn--sm">Small</a>
+    <a href="#" class="btn btn--secondary btn--sm">Small</a>
+    <a href="#" class="btn btn--outline btn--sm">Small</a>
+    <a href="#" class="btn btn--ghost btn--sm">Small</a>
   </div>
-  <span class="label">.btn + .btn--{primary｜secondary｜outline} + .btn--{sm｜md｜lg}</span>
+  <div class="row">
+    <button type="button" class="btn btn--danger btn--md">刪除 Danger（opt-in）</button>
+    <button type="button" class="btn btn--primary btn--md" disabled>停用 Disabled</button>
+  </div>
+  <span class="label">.btn + .btn--{primary｜secondary｜outline｜ghost} + .btn--{sm｜md｜lg}；.btn--danger 需另引 tokens-app + components-app（opt-in）；禁 .btn--success/.btn--info</span>
 </body>
 </html>

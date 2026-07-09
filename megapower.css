@@ -1,4 +1,4 @@
-/* Megapower Design System — content sha256:f60510a03d84 — generated 2026-07-08T11:13:26.846Z (base b25b60a) — 勿手改；改 src/styles 後執行 scripts/gen-ds.mjs 重新產生 */
+/* Megapower Design System — content sha256:6a73f3652fdd — generated 2026-07-09T02:43:50.989Z (base be3f49f) — 勿手改；改 src/styles 後執行 scripts/gen-ds.mjs 重新產生 */
 :root {
   /* === Color (6 tokens) === */
   --color-bg:         #FFFFFF;
@@ -190,6 +190,12 @@ button {
 .btn--md { padding: 0.625rem 1.25rem; font-size: var(--text-base); }
 .btn--lg { padding: 0.875rem 1.75rem; font-size: var(--text-base); }
 
+/* 停用通則（Phase 4 收編自 MegaQ）：所有樣式共用 */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .btn--primary {
   background: var(--color-primary);
   color: #fff;
@@ -222,6 +228,19 @@ button {
 .btn--outline:hover {
   background: var(--color-primary);
   color: #fff;
+}
+
+/* Ghost — 第三級輔助動作（次於 secondary 的軟性 CTA，如 CSV 匯入）。收編自 MegaQ。
+   淡橘底（--color-primary-soft-bg）+ 12% tint 框、文字深灰——橘只當底/框圖形色，
+   不做文字色（鐵則，同 .btn--outline 2026-07-07 拍板邏輯）。hover 底色深一階至 tint。 */
+.btn--ghost {
+  background: var(--color-primary-soft-bg);
+  color: var(--color-text);
+  border-color: var(--color-primary-tint);
+}
+.btn--ghost:hover {
+  background: var(--color-primary-tint);
+  color: var(--color-text); /* 鎖定深灰：防 generic a:hover 染橘（同 .btn--secondary 防護） */
 }
 
 /* 深底 secondary 變體 */
@@ -311,6 +330,107 @@ button {
   border-color: var(--color-status-cancelled);
 }
 .status--cancelled .status__icon { color: var(--color-status-cancelled); }
+
+/* === Form ===
+   Phase 4 收編：提煉自 MegaQ components.css、MegaQuotr brand.css、servicejdc-fixreq fixreq-form.css
+   三方交集命名 .form-*。本段為結構性樣式（純橘+灰、零語意色）；錯誤態 --error modifier
+   依賴 tokens-app.css 語意色，拆在 components-app.css（opt-in），本段不含。
+   尺寸拍板：radius-md（三下游取二）、padding space-2/space-4（MegaQ + fixreq 共識）、
+   控件字級 --text-base——1rem=16px，低於 16px 會觸發 iOS Safari 聚焦自動縮放，故不用 text-sm。 */
+
+.form-group {
+  margin-bottom: var(--space-4);
+}
+.form-group:last-child {
+  margin-bottom: 0; /* 卡片/區塊收尾不留孤兒間距（fixreq 慣例） */
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  box-sizing: border-box;   /* width:100% + padding 需 border-box；防未載 reset 的消費端爆版 */
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);   /* 守 system font stack 鐵則 */
+  font-size: var(--text-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast),
+              box-shadow var(--transition-fast);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.form-input:hover,
+.form-select:hover,
+.form-textarea:hover {
+  border-color: var(--color-text-muted); /* hover 灰框加深提示可互動（fixreq 慣例） */
+}
+
+/* focus 統一策略（Phase 4 拍板）：表單控件是全域 :focus-visible 橘 outline 的唯一豁免——
+   改走「品牌橘框 + 12% tint 光暈」雙層指示（豁免條件：兩層都要給，不得只 outline:none）。
+   一律寫 :focus-visible 不寫 :focus：文字輸入控件聚焦瀏覽器一律視為 visible，行為等同 :focus，
+   但語彙與全域規則自洽。下游 .form-*:focus 舊寫法收編後淘汰。 */
+.form-input:focus-visible,
+.form-select:focus-visible,
+.form-textarea:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-tint);
+}
+
+.form-select {
+  cursor: pointer;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 60px; /* MegaQ / MegaQuotr 共識值 */
+}
+
+/* 原生 checkbox 著色：accent-color 是圖形非文字，橘合規（MegaQuotr 收編） */
+.form-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary);
+}
+
+.form-hint {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* 欄位並排（等寬），窄幅收合單欄。統一取代 MegaQ .form-grid-2（grid 版）與
+   MegaQuotr .form-row（768px 版）兩種平行寫法；斷點取 640px（MegaQ + fixreq 共識，DS 暫無 breakpoint token）。 */
+.form-row {
+  display: flex;
+  gap: var(--space-4);
+}
+.form-row > * {
+  flex: 1;
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0; /* 子項自帶 .form-group margin-bottom，不疊 gap */
+  }
+}
 
 /* === Utilities (from global.css) === */
 /* === Skip link & a11y utility（既有保留） === */

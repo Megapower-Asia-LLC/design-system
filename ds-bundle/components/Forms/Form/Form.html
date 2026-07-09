@@ -1,0 +1,47 @@
+<!-- @dsCard group="Forms" -->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Form</title>
+<link rel="stylesheet" href="../../../styles.css">
+<link rel="stylesheet" href="../../../tokens/tokens-app.css">
+<link rel="stylesheet" href="../../../components-app.css">
+<style>
+  body { padding: 2rem; max-width: 560px; }
+  .label { font-size: var(--text-sm); color: var(--color-text-muted); }
+</style>
+</head>
+<body>
+  <form>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="f-name">姓名</label>
+        <input class="form-input" id="f-name" type="text" placeholder="王小明">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="f-dept">部門</label>
+        <select class="form-select" id="f-dept">
+          <option>資訊部</option>
+          <option>行政部</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="f-email">Email</label>
+      <input class="form-input form-input--error" id="f-email" type="email" value="not-an-email" aria-describedby="f-email-err" aria-invalid="true">
+      <p class="form-error-text" id="f-email-err" role="alert">Email 格式不正確（--error 態需另引 tokens-app + components-app）</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="f-note">需求描述</label>
+      <textarea class="form-textarea" id="f-note" placeholder="請描述您的需求…"></textarea>
+      <p class="form-hint">選填；愈具體我們處理愈快。</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label"><input class="form-checkbox" type="checkbox"> 同意服務條款</label>
+    </div>
+    <button type="submit" class="btn btn--primary btn--md">送出</button>
+  </form>
+  <p class="label" style="margin-top:var(--space-6)">.form-{group｜label｜input｜select｜textarea｜checkbox｜hint｜row}；錯誤態 .form-input--error + .form-error-text（opt-in）</p>
+</body>
+</html>
