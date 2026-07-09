@@ -14,13 +14,18 @@
     "./logo/*": "./ds-bundle/logo/*",
     "./ds-bundle/*": "./ds-bundle/*"
   },
+  "bin": {
+    "ds-guard": "./scripts/ds-guard.mjs"
+  },
   "files": [
     "index.js",
     "tokens.js",
     "megapower.css",
     "ds-bundle",
+    "scripts",
     "CONVENTIONS.md",
-    "README.md"
+    "README.md",
+    "BRAND-GUIDELINES.md"
   ],
   "repository": {
     "type": "git",
