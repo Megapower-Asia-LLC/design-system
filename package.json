@@ -10,6 +10,7 @@
     "./css": "./megapower.css",
     "./tokens.css": "./ds-bundle/tokens/tokens.css",
     "./tokens-app.css": "./ds-bundle/tokens/tokens-app.css",
+    "./components-app.css": "./ds-bundle/components-app.css",
     "./logo/*": "./ds-bundle/logo/*",
     "./ds-bundle/*": "./ds-bundle/*"
   },
