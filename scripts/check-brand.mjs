@@ -51,13 +51,22 @@ const EXCEPTIONS = [
     note: '白字壓品牌橘 3.29:1 — 大型互動目標、品牌識別優先（v0.3 已知且接受）；仍須守圖形級 ≥3.0' },
 ];
 
-/** component 層允許的寫死色字面值（normalize 後比對）；新增字面值＝CI 紅燈，逼迫走 token */
-const HARDCODED_ALLOWED = new Set([
+/** 門面層允許的寫死色字面值（normalize 後比對）；新增字面值＝CI 紅燈，逼迫走 token */
+const FACADE_ALLOWED = new Set([
   '#fff',                       // 按鈕白字/深底白字/skip-link（壓在橘/深灰底上，token 化無意義）
-  '#f1f5f9',                    // .section--dark .btn--secondary 淺字
-  'rgba(255,255,255,0.35)',     // 深底 secondary 邊框
-  'rgba(255,255,255,0.08)',     // 深底 secondary hover 底
-  'rgba(255,255,255,0.65)',     // 深底 secondary hover 邊框
+  '#f1f5f9',                    // .section--dark .btn--secondary/--ghost 淺字
+  'rgba(255,255,255,0.35)',     // 深底 secondary/ghost 邊框
+  'rgba(255,255,255,0.08)',     // 深底 secondary/ghost hover 底
+  'rgba(255,255,255,0.16)',     // 深底 ghost hover 底（比 secondary 深一階，微白語言）
+  'rgba(255,255,255,0.65)',     // 深底 secondary/ghost hover 邊框
+]);
+/** 語意元件層（components-app.css）額外允許：var() 的 fallback 常值（漏引 tokens-app 的 degrade 保護；
+    與 tokens-app 現值的一致性由下方 fallback 斷言把關） */
+const APP_ALLOWED = new Set([
+  ...FACADE_ALLOWED,
+  '#b42318',                    // danger fallback
+  '#97180f',                    // danger-hover fallback
+  'rgba(180,35,24,0.12)',       // danger-tint fallback（12% 疊白等價）
 ]);
 
 /** CSS 命名色全集（色彩屬性上的裸識別字命中即紅燈；transparent/currentColor 等關鍵字不在此列故放行） */
@@ -66,6 +75,7 @@ const NAMED_COLORS = new Set('aliceblue,antiquewhite,aqua,aquamarine,azure,beige
 /** ds-bundle 必要檔案（相對 ds-bundle/） */
 const BUNDLE_REQUIRED = [
   'styles.css', '_ds_bundle.css', 'README.md', 'BRAND-ASSETS.md', 'CONVENTIONS.md',
+  'components-app.css',
   'tokens/tokens.css', 'tokens/tokens-app.css',
   'logo/logo-mark-light.png', 'logo/logo-mark-dark.png',
   'logo/logo-full-light.png', 'logo/logo-full-dark.png',
@@ -73,7 +83,7 @@ const BUNDLE_REQUIRED = [
 ];
 
 /** DS 元件 class 家族（覆蓋檢查；含單橫線 typo 如 .btn-primary 也納入檢查而非放行） */
-const DS_CLASS_RE = /^(btn|section|card|status|container|skip-link|sr-only)([-_].*)?$/;
+const DS_CLASS_RE = /^(btn|section|card|status|form|container|skip-link|sr-only)([-_].*)?$/;
 
 // ============ [1] 衍生檔一致性 ============
 
@@ -84,6 +94,9 @@ if (MODE === 'megaweb') {
   for (const [a, b] of [
     ['src/styles/tokens.css', 'ds-bundle/tokens/tokens.css'],
     ['src/styles/tokens-app.css', 'ds-bundle/tokens/tokens-app.css'],
+    ['src/styles/components-app.css', 'ds-bundle/components-app.css'],
+    ['src/styles/tokens-app.css', 'public/ds/tokens-app.css'],
+    ['src/styles/components-app.css', 'public/ds/components-app.css'],
     ['.design-sync/conventions.md', 'ds-bundle/CONVENTIONS.md'],
   ]) {
     if (!existsSync(join(ROOT, b))) fail('derive', `${b} 不存在（跑 scripts/gen-ds.mjs）`);
@@ -91,10 +104,17 @@ if (MODE === 'megaweb') {
   }
   // _ds_bundle.css 必須等於由 src 重新串接的結果（錨點切割，與 gen-ds 同配方）
   const globalLines = read(join(ROOT, 'src/styles/global.css')).split('\n');
+  // @import 白名單（與 gen-ds 同步）：防語意元件層被接進門面/全站、防檔尾 append 位移錨點
+  const imports = globalLines.filter((l) => /^\s*@import\b/.test(l)).map((l) => l.match(/@import\s+'([^']+)'/)?.[1] ?? l.trim());
+  const IMPORT_WHITELIST = ['./tokens.css', './base.css', './components.css'];
+  if (JSON.stringify(imports) !== JSON.stringify(IMPORT_WHITELIST))
+    fail('derive', `global.css @import 清單 ≠ 白名單 [${IMPORT_WHITELIST.join(', ')}]（實際：[${imports.join(', ')}]）——opt-in 層不得接進門面/全站`);
   let lastImport = -1;
   globalLines.forEach((l, i) => { if (/^\s*@import\b/.test(l)) lastImport = i; });
   if (lastImport === -1) fail('derive', 'global.css 找不到 @import 錨點——尾段切割配方失效');
   const globalTail = globalLines.slice(lastImport + 1).join('\n').replace(/^\n+/, '');
+  for (const sentinel of ['.skip-link', '.sr-only', ':focus-visible'])
+    if (!globalTail.includes(sentinel)) fail('derive', `global.css 尾段缺哨兵「${sentinel}」——utilities 被切掉`);
   const expectBundle =
     '/* Megapower Design System — base + component styles (generated) */\n\n' +
     read(join(ROOT, 'src/styles/base.css')) + '\n' +
@@ -201,13 +221,21 @@ while (grew) {
 }
 const orangeVarRe = new RegExp(`var\\(--color-(?:${[...orangeTokens].join('|')})\\)`);
 
+// [檔案路徑, 該檔的寫死色白名單]
 const scanFiles = MODE === 'megaweb'
-  ? ['src/styles/base.css', 'src/styles/components.css', 'src/styles/global.css'].map((f) => join(ROOT, f))
-  : [join(bundleDir, '_ds_bundle.css')];
+  ? [
+      ...['src/styles/base.css', 'src/styles/components.css', 'src/styles/global.css'].map((f) => [join(ROOT, f), FACADE_ALLOWED]),
+      [join(ROOT, 'src/styles/components-app.css'), APP_ALLOWED],
+    ]
+  : [
+      [join(bundleDir, '_ds_bundle.css'), FACADE_ALLOWED],
+      [join(bundleDir, 'components-app.css'), APP_ALLOWED],
+    ];
 
 const COLOR_PROPS_RE = /(?<![-\w])(color|background(?:-color)?|border(?:-(?:top|right|bottom|left))?-color|outline-color|text-decoration-color|caret-color|accent-color|fill|stroke)\s*:\s*([^;]+);/g;
 
-for (const f of scanFiles) {
+for (const [f, allowed] of scanFiles) {
+  if (!existsSync(f)) { fail('derive', `${relative(ROOT, f)} 不存在`); continue; }
   const css = stripComments(read(f)); // 剝除註解——說明文字裡的色碼不算寫死
   const rel = relative(ROOT, f);
   // [3] 橘不做文字色：`color:` 宣告（排除 border-color 等）不得取品牌橘（含別名鏈）
@@ -224,8 +252,8 @@ for (const f of scanFiles) {
   // [4a] 寫死色白名單：hex 與全部函數色（rgb/hsl/hwb/lab/lch/oklab/oklch/color）
   for (const m of css.matchAll(/#[0-9a-fA-F]{3,8}\b|(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\([^)]*\)/g)) {
     const norm = m[0].toLowerCase().replace(/\s+/g, '');
-    if (!HARDCODED_ALLOWED.has(norm))
-      fail('hardcoded', `${rel}：寫死色字面值 \`${m[0]}\` 不在白名單——改用 var(--…) token（或有意例外則加進 HARDCODED_ALLOWED 並附理由）`);
+    if (!allowed.has(norm))
+      fail('hardcoded', `${rel}：寫死色字面值 \`${m[0]}\` 不在白名單——改用 var(--…) token（或有意例外則加進白名單並附理由）`);
   }
   // [4b] CSS 命名色：色彩屬性值裡的裸識別字命中命名色即紅燈（white/orangered…）
   for (const m of css.matchAll(COLOR_PROPS_RE)) {
@@ -233,6 +261,31 @@ for (const f of scanFiles) {
     for (const tok of bare.split(/[\s,\/]+/))
       if (NAMED_COLORS.has(tok.toLowerCase()))
         fail('hardcoded', `${rel}：\`${m[1]}: …${tok}…\` 用了 CSS 命名色——改用 var(--…) token`);
+  }
+}
+
+// ============ [4c] components-app fallback 一致性 ============
+// var(--color-X, <fallback>) 的 fallback 必須等於 tokens-app 的 --color-X 現值——
+// 改語意色時漏改 fallback，漏引 tokens-app 的消費端會 degrade 成「舊色」而走鐘。
+const appCssPath = MODE === 'megaweb' ? join(ROOT, 'src/styles/components-app.css') : join(bundleDir, 'components-app.css');
+if (existsSync(appCssPath)) {
+  const appCss = stripComments(read(appCssPath));
+  // fallback 可含一層括號（rgba(...)）——(?:[^()]|\([^()]*\))+ 而非 [^)]+
+  for (const m of appCss.matchAll(/var\(--color-([\w-]+)\s*,\s*((?:[^()]|\([^()]*\))+)\)/g)) {
+    const [, name, fbRaw] = m;
+    const fb = fbRaw.trim().toLowerCase().replace(/\s+/g, '');
+    if (/^#[0-9a-f]{6}$/.test(fb)) {
+      if (fb !== (hexTokens[name] ?? '').toLowerCase())
+        fail('fallback', `components-app：var(--color-${name}, ${fbRaw.trim()}) 的 fallback ≠ tokens-app 現值 ${hexTokens[name] ?? '(token 不存在)'}——兩處同步`);
+    } else if (name.endsWith('-tint')) {
+      const base = hexTokens[name.replace(/-tint$/, '')];
+      const rm = fb.match(/^rgba\((\d+),(\d+),(\d+),0?\.12\)$/);
+      const rgb = base ? [1, 3, 5].map((i) => parseInt(base.slice(i, i + 2), 16)) : null;
+      if (!rm || !rgb || +rm[1] !== rgb[0] || +rm[2] !== rgb[1] || +rm[3] !== rgb[2])
+        fail('fallback', `components-app：var(--color-${name}, ${fbRaw.trim()}) 的 tint fallback 與 base 色 ${base ?? '(缺)'} 的 12% 不符`);
+    } else {
+      fail('fallback', `components-app：var(--color-${name}, ${fbRaw.trim()}) fallback 格式無法驗證——用 6 位 hex 或 rgba(r,g,b,0.12)`);
+    }
   }
 }
 
@@ -248,8 +301,13 @@ if (existsSync(compDir)) {
   walk(compDir);
 }
 if (htmls.length < 6) fail('bundle', `components/ 元件 HTML 僅 ${htmls.length} 個（預期 ≥6）`);
-// class 查表用的 CSS 先剝註解——否則註解裡出現的 class 名會被誤判為「有定義」
-const bundleCss = existsSync(join(bundleDir, '_ds_bundle.css')) ? stripComments(read(join(bundleDir, '_ds_bundle.css'))) : '';
+// class 查表用的 CSS 先剝註解——否則註解裡出現的 class 名會被誤判為「有定義」。
+// 查表範圍 = 門面 + 語意元件層（demo 卡可展示 opt-in class，如 .btn--danger）。
+const bundleCss = ['_ds_bundle.css', 'components-app.css']
+  .map((f) => join(bundleDir, f))
+  .filter(existsSync)
+  .map((p) => stripComments(read(p)))
+  .join('\n');
 for (const h of htmls) {
   const rel = relative(ROOT, h);
   const html = read(h);

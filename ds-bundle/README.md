@@ -19,7 +19,8 @@
 | Actions | Button | `.btn` + `--primary/secondary/outline` + `--sm/md/lg` |
 | Layout | Section | `.section` + `--soft/dark`、`.section__inner(--narrow)` |
 | Surfaces | Card | `.card` + `--soft/accent/interactive` |
-| Feedback | Status | `.status` + `--received/active/done/cancelled`（橘+灰+icon 狀態語言） |
+| Feedback | Status | `.status` + `--received/active/done/cancelled`（橘+灰+icon 狀態語言；業務態走映射規約不加新 class） |
+| Forms | Form | `.form-{group/label/input/select/textarea/checkbox/hint/row}`；錯誤態 `--error` + `.form-error-text`（opt-in） |
 
 ## 公開引用（SoT）
 
@@ -33,10 +34,13 @@
 
 ## 應用層語意色（opt-in，非品牌門面）
 
-品牌門面 `megapower.css` 只有橘+灰，**不含** success/warning/danger/info。內部工具（後台／表單）需要功能回饋語意色時，另外引入 `tokens/tokens-app.css`（muted 版、過白底 WCAG AA）：
+品牌門面 `megapower.css` 只有橘+灰，**不含** success/warning/danger/info。內部工具（後台／表單）需要功能回饋時，另外引入語意色 token 與語意元件（順序在門面之後）：
 
 ```css
-@import "@megapower/design-tokens/tokens-app.css";  /* 才取得 --color-success/-warning/-danger/-info（各附 -hover/-tint） */
+@import "@megapower/design-tokens/tokens-app.css";       /* --color-success/-warning/-danger/-info（各附 -hover/-tint，muted 版過白底 AA） */
+@import "@megapower/design-tokens/components-app.css";   /* .btn--danger、.form-*--error、.form-error-text（內建 fallback） */
 ```
+
+CDN 版：`https://www.megapower.asia/ds/tokens-app.css` 與 `…/ds/components-app.css`。
 
 僅限功能回饋（表單驗證、操作 toast、危險確認、資訊提示）；狀態進度一律用上表 `.status`（橘+灰），勿用語意色表示狀態。⚠ tint（12%）淺底上勿以同色 base 當文字（success 4.28:1、warning 4.17:1 fail AA）——文字用 `-hover` 深化版或深灰 `--color-text`。

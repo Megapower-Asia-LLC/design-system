@@ -108,12 +108,18 @@ button {
 .btn--md { padding: 0.625rem 1.25rem; font-size: var(--text-base); }
 .btn--lg { padding: 0.875rem 1.75rem; font-size: var(--text-base); }
 
+/* 停用通則（Phase 4 收編自 MegaQ）：所有樣式共用 */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .btn--primary {
   background: var(--color-primary);
   color: #fff;
   border-color: var(--color-primary);
 }
-.btn--primary:hover {
+.btn--primary:hover:not(:disabled) {
   background: var(--color-primary-hover);
   border-color: var(--color-primary-hover);
   color: #fff; /* 鎖定白字：generic a:hover{color} specificity(0,1,1) 高於 .btn(0,1,0)，<a class="btn"> hover 時文字會被染成 primary-hover、與底色同色而隱形 */
@@ -124,7 +130,7 @@ button {
   color: var(--color-text);
   border-color: var(--color-border);
 }
-.btn--secondary:hover {
+.btn--secondary:hover:not(:disabled) {
   background: var(--color-bg-soft);
   border-color: var(--color-text-muted);
   color: var(--color-text); /* 同上：鎖定深灰，避免被 generic a:hover 染橘 */
@@ -137,18 +143,43 @@ button {
   color: var(--color-text);
   border-color: var(--color-primary);
 }
-.btn--outline:hover {
+.btn--outline:hover:not(:disabled) {
   background: var(--color-primary);
   color: #fff;
 }
 
-/* 深底 secondary 變體 */
+/* Ghost — 第三級輔助動作（次於 secondary 的軟性 CTA，如 CSV 匯入）。收編自 MegaQ。
+   淡橘底（--color-primary-soft-bg）+ 12% tint 框、文字深灰——橘只當底/框圖形色，
+   不做文字色（鐵則，同 .btn--outline 2026-07-07 拍板邏輯）。hover 底色深一階至 tint。 */
+.btn--ghost {
+  background: var(--color-primary-soft-bg);
+  color: var(--color-text);
+  border-color: var(--color-primary-tint);
+}
+.btn--ghost:hover:not(:disabled) {
+  background: var(--color-primary-tint);
+  color: var(--color-text); /* 鎖定深灰：防 generic a:hover 染橘（同 .btn--secondary 防護） */
+}
+
+/* 深底 secondary / ghost 變體 */
 .section--dark .btn--secondary {
   color: #F1F5F9;
   border-color: rgba(255, 255, 255, 0.35);
 }
-.section--dark .btn--secondary:hover {
+.section--dark .btn--secondary:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.65);
+}
+/* ghost 的 tint 是透明色，在深底合成出深色底 + 深灰字 = hover 文字隱形（1.13:1，審查實測）——
+   深底改走與 secondary 同語言的微白底 */
+.section--dark .btn--ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: #F1F5F9;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.section--dark .btn--ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
+  color: #F1F5F9;
   border-color: rgba(255, 255, 255, 0.65);
 }
 
@@ -229,6 +260,116 @@ button {
   border-color: var(--color-status-cancelled);
 }
 .status--cancelled .status__icon { color: var(--color-status-cancelled); }
+
+/* === Form ===
+   Phase 4 收編：提煉自 MegaQ components.css、MegaQuotr brand.css、servicejdc-fixreq fixreq-form.css
+   三方交集命名 .form-*。本段為結構性樣式（純橘+灰、零語意色）；錯誤態 --error modifier
+   依賴 tokens-app.css 語意色，拆在 components-app.css（opt-in），本段不含。
+   尺寸拍板：radius-md（三下游取二）、padding space-2/space-4（MegaQ + fixreq 共識）、
+   控件字級 --text-base——1rem=16px，低於 16px 會觸發 iOS Safari 聚焦自動縮放，故不用 text-sm。 */
+
+.form-group {
+  margin-bottom: var(--space-4);
+}
+.form-group:last-child {
+  margin-bottom: 0; /* 卡片/區塊收尾不留孤兒間距（fixreq 慣例） */
+}
+/* row 內欄距交給 flex gap；row 自身承擔與下個欄位的間距——
+   否則 :last-child 歸零會誤傷 row 內最後一欄，640px 收合後 row 與下欄垂直間距變 0（審查實測） */
+.form-row .form-group {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  box-sizing: border-box;   /* width:100% + padding 需 border-box；防未載 reset 的消費端爆版 */
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);   /* 守 system font stack 鐵則 */
+  font-size: var(--text-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast),
+              box-shadow var(--transition-fast);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.form-input:hover,
+.form-select:hover,
+.form-textarea:hover {
+  border-color: var(--color-text-muted); /* hover 灰框加深提示可互動（fixreq 慣例） */
+}
+
+/* focus 統一策略（Phase 4 拍板）：表單控件是全域 :focus-visible 橘 outline 的唯一豁免——
+   改走「品牌橘框 + 12% tint 光暈」雙層指示（豁免條件：兩層都要給，不得只 outline:none）。
+   一律寫 :focus-visible 不寫 :focus：文字輸入控件聚焦瀏覽器一律視為 visible，行為等同 :focus，
+   但語彙與全域規則自洽。下游 .form-*:focus 舊寫法收編後淘汰。 */
+.form-input:focus-visible,
+.form-select:focus-visible,
+.form-textarea:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-tint);
+}
+
+.form-select {
+  cursor: pointer;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 60px; /* MegaQ / MegaQuotr 共識值 */
+}
+
+/* 原生 checkbox 著色：accent-color 是圖形非文字，橘合規（MegaQuotr 收編） */
+.form-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary);
+}
+
+.form-hint {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* 欄位並排（等寬），窄幅收合單欄。統一取代 MegaQ .form-grid-2（grid 版）與
+   MegaQuotr .form-row（768px 版）兩種平行寫法；斷點取 640px（MegaQ + fixreq 共識，DS 暫無 breakpoint token）。 */
+.form-row {
+  display: flex;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.form-row:last-child {
+  margin-bottom: 0;
+}
+.form-row > * {
+  flex: 1;
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    flex-direction: column;
+    /* 收合後欄距沿用 gap（row 內 .form-group 的 margin 已歸零，靠 gap 給間距） */
+  }
+}
 
 /* === Utilities (from global.css) === */
 /* === Skip link & a11y utility（既有保留） === */
