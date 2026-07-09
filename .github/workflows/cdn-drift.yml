@@ -1,0 +1,19 @@
+# CDN 漂移哨兵（每週一次 + 手動觸發）——事後防線：主 gate 在 megaweb Pages build。
+# 比對 www.megapower.asia/ds/megapower.css 與本 repo 版本；持續性漂移＝漏做同步或 CDN 出事，
+# fail 時 GitHub 自動寄信給 repo watcher。短暫時差（megaweb 已部署、本 repo 尚未同步）
+# 若剛好撞上週一排程，跑完 MAINTENANCE Step 4 後手動 re-run 即可。
+name: cdn-drift
+on:
+  schedule:
+    - cron: '0 1 * * 1'   # 每週一 09:00（台北）
+  workflow_dispatch:
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: CDN vs repo 位元組比對
+        run: |
+          curl -fsSL https://www.megapower.asia/ds/megapower.css -o /tmp/cdn.css
+          diff /tmp/cdn.css megapower.css && echo "CDN 與 repo 一致 ✓"
