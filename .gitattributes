@@ -4,3 +4,4 @@
 *.mjs text eol=lf
 *.js text eol=lf
 *.png binary
+*.ai binary
