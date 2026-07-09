@@ -16,17 +16,17 @@ megaweb（SoT，src/styles/*.css）
 
 | 資源 | 位置 | 誰有權限 |
 |---|---|---|
-| GitHub org `Megapower-Asia-LLC` | megaweb、design-system、servicejdc-fixreq | Aiken（owner）；oupaul＝＿＿（待確認補填） |
-| GitHub 個人 `aiken884` | MegaQ、aidradar、MegaQuotr、PrismSGA | Aiken |
-| Cloudflare 帳號（Pages 專案 `megaweb`，網域 `megapower-website.pages.dev`） | account id `d6b65fd57859c2150d86f45f4269cc78` | Aiken（⚠ 單人——密碼/2FA 交接方式：＿＿待補填） |
+| GitHub org `Megapower-Asia-LLC` | megaweb、design-system、servicejdc-fixreq | Aiken（owner）＋ oupaul（Organization Manager，org 層級管理權限——可存取 org 下所有 repo、merge PR、改設定） |
+| GitHub 個人 `aiken884` | MegaQ、aidradar、MegaQuotr、PrismSGA | Aiken（⚠ 個人帳號，oupaul 無 org 級權限；緊急需個別加協作者） |
+| Cloudflare 帳號（Pages 專案 `megaweb`，網域 `megapower-website.pages.dev`） | account id `d6b65fd57859c2150d86f45f4269cc78` | Aiken（**刻意不交接**——CDN 檔案全在 megaweb repo git，緊急重建走下方「Cloudflare 帳號不可用」路徑，不需進入此帳號） |
 | DNS（www.megapower.asia） | Azure DNS（公司政策，不在 Cloudflare） | Aiken |
 | logo 向量原檔 | OneDrive 群兆 `行銷相關/Logo/`＋repo `brand-source/` 備援 | 公司 OneDrive 成員 |
 
 ## 緊急處置
 
 **CDN 上出現壞品牌（改壞已部署）**
-1. 最快回滾：Cloudflare Pages dashboard → megaweb 專案 → Deployments → 前一個成功部署 → Rollback（分鐘級、不動 git）。
-2. 正規回滾：megaweb `git revert <壞 commit>` → push master（gate 會再驗一次）。
+1. 最快回滾：Cloudflare Pages dashboard → megaweb 專案 → Deployments → 前一個成功部署 → Rollback（分鐘級、不動 git）。**需 Cloudflare 帳號存取（僅 Aiken）——oupaul 走第 2 條。**
+2. 正規回滾（任何 org 成員可做）：megaweb `git revert <壞 commit>` → push master（Pages 自動重新部署、gate 再驗一次）。
 3. 鑑識：CDN 檔第一行有 `content sha256:<hash>` 指紋；對應的 `megapower.<hash>.css` 旁路檔與 git 歷史可比對是哪一版。
 
 **npm 下游拉到壞版**
@@ -45,6 +45,7 @@ megaweb（SoT，src/styles/*.css）
 - megaweb 私有 repo 無 branch protection：Actions 紅燈不強制擋 push，**唯一硬 gate 是 Pages build**（`npm run build` 前置 check-brand）。改 Pages build command 等於拆 gate——不要動它。
 - design-system merge 慣例是 `gh pr merge --admin`（0 approval、單人自我 merge）；required check `check` 擋一般 merge，admin bypass 是明知之舉。
 - `.btn--primary` 白字橘底 3.29:1 為 selector 級已知例外（品牌識別優先）。
+- Cloudflare 帳號**刻意不交接**（僅 Aiken）：接受「dashboard 分鐘級 rollback」在 Aiken 不在時不可用；替代是 git revert 重部署（第 2 條，任何 org 成員可做）或整套重建（換靜態託管掛 DNS，CDN 檔案全在 git、零遺失）。DNS 在 Azure、不受此帳號影響。
 
 ## 守門腳本地圖（SoT 全在 megaweb/scripts/）
 
