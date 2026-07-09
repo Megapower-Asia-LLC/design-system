@@ -19,7 +19,7 @@
   color: #fff;
   border-color: var(--color-danger, #B42318);
 }
-.btn--danger:hover {
+.btn--danger:hover:not(:disabled) {
   background: var(--color-danger-hover, #97180F);
   border-color: var(--color-danger-hover, #97180F);
   color: #fff; /* 鎖定白字：同 .btn--primary 的 generic a:hover specificity 防護 */
@@ -51,4 +51,12 @@
   margin-top: var(--space-2);
   font-size: var(--text-sm);
   color: var(--color-danger, #B42318);
+}
+/* 錯誤訊息內的連結（「此 Email 已註冊，請登入」型）：全域 a 規則會把字染深灰、hover 底線轉品牌橘——
+   錯誤語境不切回橘（同 focus 光暈設計），連結與底線一律鎖 danger */
+.form-error-text a {
+  color: var(--color-danger, #B42318);
+}
+.form-error-text a:hover {
+  text-decoration-color: var(--color-danger, #B42318);
 }

@@ -119,7 +119,7 @@ button {
   color: #fff;
   border-color: var(--color-primary);
 }
-.btn--primary:hover {
+.btn--primary:hover:not(:disabled) {
   background: var(--color-primary-hover);
   border-color: var(--color-primary-hover);
   color: #fff; /* 鎖定白字：generic a:hover{color} specificity(0,1,1) 高於 .btn(0,1,0)，<a class="btn"> hover 時文字會被染成 primary-hover、與底色同色而隱形 */
@@ -130,7 +130,7 @@ button {
   color: var(--color-text);
   border-color: var(--color-border);
 }
-.btn--secondary:hover {
+.btn--secondary:hover:not(:disabled) {
   background: var(--color-bg-soft);
   border-color: var(--color-text-muted);
   color: var(--color-text); /* 同上：鎖定深灰，避免被 generic a:hover 染橘 */
@@ -143,7 +143,7 @@ button {
   color: var(--color-text);
   border-color: var(--color-primary);
 }
-.btn--outline:hover {
+.btn--outline:hover:not(:disabled) {
   background: var(--color-primary);
   color: #fff;
 }
@@ -156,18 +156,30 @@ button {
   color: var(--color-text);
   border-color: var(--color-primary-tint);
 }
-.btn--ghost:hover {
+.btn--ghost:hover:not(:disabled) {
   background: var(--color-primary-tint);
   color: var(--color-text); /* 鎖定深灰：防 generic a:hover 染橘（同 .btn--secondary 防護） */
 }
 
-/* 深底 secondary 變體 */
+/* 深底 secondary / ghost 變體 */
 .section--dark .btn--secondary {
   color: #F1F5F9;
   border-color: rgba(255, 255, 255, 0.35);
 }
-.section--dark .btn--secondary:hover {
+.section--dark .btn--secondary:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.65);
+}
+/* ghost 的 tint 是透明色，在深底合成出深色底 + 深灰字 = hover 文字隱形（1.13:1，審查實測）——
+   深底改走與 secondary 同語言的微白底 */
+.section--dark .btn--ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: #F1F5F9;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.section--dark .btn--ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
+  color: #F1F5F9;
   border-color: rgba(255, 255, 255, 0.65);
 }
 
@@ -262,6 +274,11 @@ button {
 .form-group:last-child {
   margin-bottom: 0; /* 卡片/區塊收尾不留孤兒間距（fixreq 慣例） */
 }
+/* row 內欄距交給 flex gap；row 自身承擔與下個欄位的間距——
+   否則 :last-child 歸零會誤傷 row 內最後一欄，640px 收合後 row 與下欄垂直間距變 0（審查實測） */
+.form-row .form-group {
+  margin-bottom: 0;
+}
 
 .form-label {
   display: block;
@@ -338,6 +355,10 @@ button {
 .form-row {
   display: flex;
   gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.form-row:last-child {
+  margin-bottom: 0;
 }
 .form-row > * {
   flex: 1;
@@ -346,7 +367,7 @@ button {
 @media (max-width: 640px) {
   .form-row {
     flex-direction: column;
-    gap: 0; /* 子項自帶 .form-group margin-bottom，不疊 gap */
+    /* 收合後欄距沿用 gap（row 內 .form-group 的 margin 已歸零，靠 gap 給間距） */
   }
 }
 

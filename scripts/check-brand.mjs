@@ -54,10 +54,11 @@ const EXCEPTIONS = [
 /** 門面層允許的寫死色字面值（normalize 後比對）；新增字面值＝CI 紅燈，逼迫走 token */
 const FACADE_ALLOWED = new Set([
   '#fff',                       // 按鈕白字/深底白字/skip-link（壓在橘/深灰底上，token 化無意義）
-  '#f1f5f9',                    // .section--dark .btn--secondary 淺字
-  'rgba(255,255,255,0.35)',     // 深底 secondary 邊框
-  'rgba(255,255,255,0.08)',     // 深底 secondary hover 底
-  'rgba(255,255,255,0.65)',     // 深底 secondary hover 邊框
+  '#f1f5f9',                    // .section--dark .btn--secondary/--ghost 淺字
+  'rgba(255,255,255,0.35)',     // 深底 secondary/ghost 邊框
+  'rgba(255,255,255,0.08)',     // 深底 secondary/ghost hover 底
+  'rgba(255,255,255,0.16)',     // 深底 ghost hover 底（比 secondary 深一階，微白語言）
+  'rgba(255,255,255,0.65)',     // 深底 secondary/ghost hover 邊框
 ]);
 /** 語意元件層（components-app.css）額外允許：var() 的 fallback 常值（漏引 tokens-app 的 degrade 保護；
     與 tokens-app 現值的一致性由下方 fallback 斷言把關） */
@@ -103,10 +104,17 @@ if (MODE === 'megaweb') {
   }
   // _ds_bundle.css 必須等於由 src 重新串接的結果（錨點切割，與 gen-ds 同配方）
   const globalLines = read(join(ROOT, 'src/styles/global.css')).split('\n');
+  // @import 白名單（與 gen-ds 同步）：防語意元件層被接進門面/全站、防檔尾 append 位移錨點
+  const imports = globalLines.filter((l) => /^\s*@import\b/.test(l)).map((l) => l.match(/@import\s+'([^']+)'/)?.[1] ?? l.trim());
+  const IMPORT_WHITELIST = ['./tokens.css', './base.css', './components.css'];
+  if (JSON.stringify(imports) !== JSON.stringify(IMPORT_WHITELIST))
+    fail('derive', `global.css @import 清單 ≠ 白名單 [${IMPORT_WHITELIST.join(', ')}]（實際：[${imports.join(', ')}]）——opt-in 層不得接進門面/全站`);
   let lastImport = -1;
   globalLines.forEach((l, i) => { if (/^\s*@import\b/.test(l)) lastImport = i; });
   if (lastImport === -1) fail('derive', 'global.css 找不到 @import 錨點——尾段切割配方失效');
   const globalTail = globalLines.slice(lastImport + 1).join('\n').replace(/^\n+/, '');
+  for (const sentinel of ['.skip-link', '.sr-only', ':focus-visible'])
+    if (!globalTail.includes(sentinel)) fail('derive', `global.css 尾段缺哨兵「${sentinel}」——utilities 被切掉`);
   const expectBundle =
     '/* Megapower Design System — base + component styles (generated) */\n\n' +
     read(join(ROOT, 'src/styles/base.css')) + '\n' +
