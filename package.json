@@ -1,6 +1,6 @@
 {
   "name": "@megapower/design-tokens",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "群兆視覺設計系統 — design tokens、logo 與品牌 CSS（Megapower Design System）",
   "type": "module",
   "main": "index.js",
