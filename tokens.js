@@ -8,26 +8,26 @@
 // 語意色（success/warning/danger/info）刻意不匯出——opt-in CSS（tokens-app.css），門面 JS/CSS 一致只含橘+灰。
 
 export const color = {
-  bg: "#FFFFFF",
-  bgSoft: "#F8FAFC",
-  text: "#1E293B",
-  textMuted: "#64748B",
-  border: "#E2E8F0",
-  primary: "#F06000",
-  primaryHover: "#D45200",
-  primarySoftBg: "#FFF7ED",
+  "bg": "#FFFFFF",
+  "bgSoft": "#F8FAFC",
+  "text": "#1E293B",
+  "textMuted": "#64748B",
+  "border": "#E2E8F0",
+  "primary": "#F06000",
+  "primaryHover": "#D45200",
+  "primarySoftBg": "#FFF7ED",
 };
 
 export const fontSans =
   "-apple-system, BlinkMacSystemFont, \"Segoe UI\", \"PingFang TC\", \"Microsoft JhengHei\", \"Hiragino Sans\", \"Yu Gothic UI\", \"Noto Sans CJK TC\", \"Noto Sans CJK JP\", Roboto, system-ui, sans-serif";
 
 export const fontSize = {
-  sm: "0.875rem",
-  base: "1rem",
-  lg: "1.125rem",
-  xl: "1.25rem",
-  displayMd: "clamp(1.5rem, 3vw, 2.25rem)",
-  displayLg: "clamp(2rem, 4vw, 3.25rem)",
+  "sm": "0.875rem",
+  "base": "1rem",
+  "lg": "1.125rem",
+  "xl": "1.25rem",
+  "displayMd": "clamp(1.5rem, 3vw, 2.25rem)",
+  "displayLg": "clamp(2rem, 4vw, 3.25rem)",
 };
 
 export const lineHeight = { base: "1.6" };
@@ -40,13 +40,13 @@ export const spacingSection = "5rem";
 export const maxWidth = { content: "1200px", narrow: "720px" };
 export const radius = { sm: "4px", md: "8px", lg: "16px", full: "9999px" };
 export const shadow = {
-  sm: "0 1px 3px rgba(0, 0, 0, 0.08)",
-  md: "0 4px 12px rgba(0, 0, 0, 0.10)",
-  lg: "0 8px 24px rgba(0, 0, 0, 0.12)",
+  "sm": "0 1px 3px rgba(0, 0, 0, 0.08)",
+  "md": "0 4px 12px rgba(0, 0, 0, 0.10)",
+  "lg": "0 8px 24px rgba(0, 0, 0, 0.12)",
 };
 export const transition = { fast: "0.15s ease", base: "0.25s ease" };
 
-// RWD 斷點慣例（CSS 無此 token——media query 用 768px，與此常數同步維護；lg 為新專案建議值）
+// RWD 斷點：md 由 tokens.css 的 @media (max-width) 機械解析（防漂移）；lg 為新專案慣例值
 export const breakpoint = { md: "768px", lg: "1024px" };
 
 const BASE = "https://www.megapower.asia/ds/logo";
@@ -59,10 +59,10 @@ export const logo = {
   qrWebsiteDark: `${BASE}/qr-website-dark.png`,
 };
 
-// 狀態語言（橘+灰映射；由 CSS --color-status-* 的 var() 引用自動解析）
+// 狀態語言（橘+灰映射；由 CSS --color-status-* 的 var() 引用自動解析；key 引號化容納連字號業務態）
 export const statusColor = {
-  received: color.textMuted,
-  active: color.primary,
-  done: color.text,
-  cancelled: color.textMuted,
+  "received": color.textMuted,
+  "active": color.primary,
+  "done": color.text,
+  "cancelled": color.textMuted,
 };

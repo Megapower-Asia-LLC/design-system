@@ -104,6 +104,15 @@ if (MODE === 'megaweb') {
     fail('derive', '_ds_bundle.css 與 src/styles 串接結果不一致（跑 scripts/gen-ds.mjs）');
 }
 
+if (MODE === 'package') {
+  // 同步完整性：design-system 根目錄 CONVENTIONS.md 與 ds-bundle/CONVENTIONS.md 必須同源
+  // （MAINTENANCE Step 4 有兩條 cp——漏其中一條時此處紅燈；SoT 比對只能在 megaweb 模式做）
+  if (!existsSync(join(ROOT, 'CONVENTIONS.md')))
+    fail('derive', 'CONVENTIONS.md 缺失（Step 4 同步不完整）');
+  else if (existsSync(join(bundleDir, 'CONVENTIONS.md')) && read(join(ROOT, 'CONVENTIONS.md')) !== read(join(bundleDir, 'CONVENTIONS.md')))
+    fail('derive', 'CONVENTIONS.md 與 ds-bundle/CONVENTIONS.md 不一致——Step 4 兩條 cp 漏了一條');
+}
+
 // 門面 = 指紋 header（第一行，含 content sha256）+ tokens + '\n' + bundle
 let facade = '';
 if (!existsSync(facadePath)) fail('facade', `${relative(ROOT, facadePath)} 不存在`);

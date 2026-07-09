@@ -5,6 +5,8 @@ on:
   push:
     branches: [main]
   pull_request:
+    # labeled：CI 紅了才掛 break-glass label 也能觸發重跑（預設 types 不含 labeled，事後掛標無效）
+    types: [opened, synchronize, reopened, labeled]
 
 jobs:
   check:
