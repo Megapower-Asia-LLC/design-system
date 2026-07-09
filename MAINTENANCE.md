@@ -54,13 +54,13 @@ curl -s https://www.megapower.asia/ds/megapower.css | head -1 | grep -q "$HASH" 
 gh release create "$V" --generate-notes --notes "CDN 內容指紋：content sha256:${HASH}（對應 www.megapower.asia/ds/megapower.css 檔頭與旁路檔 megapower.${HASH}.css）"
 ```
 → 各 node 前端跑 `npm update @megapower/design-tokens` + 重 build → 跟上；緊急回滾＝下游把依賴改成 `#semver:0.x.y` 釘舊版。
-⚠ **0.x 的 caret 只涵蓋 patch**（`^0.2` = ≥0.2.0 <0.3.0）：發 **minor**（如 v0.3.0）後 npm 下游的 `#semver:^0.2` **不會自動升**——發 minor 時要順手把各 npm 下游 range 升成 `^0.3`（bun 下游本來就是手動改 tag）。這是 semver 對 0.x 的刻意語意（0.x minor 視同可能 breaking），不是 bug。
+⚠ **0.x 的 caret 只涵蓋 patch**（`^0.2` = ≥0.2.0 <0.3.0）：發 **minor**（如 v0.3.0）後 npm 下游的 `#semver:^0.3` **不會自動升**——發 minor 時要順手把各 npm 下游 range 升成 `^0.3`（bun 下游本來就是手動改 tag）。這是 semver 對 0.x 的刻意語意（0.x minor 視同可能 breaking），不是 bug。
 
 **下游 npm 消費專案治理範本（一次性設定，寫進各專案）**：
-- npm 專案依賴字串用 semver range：`"@megapower/design-tokens": "github:Megapower-Asia-LLC/design-system#semver:^0.2"`（`npm update` 只升相容版，不再直接吃 main HEAD）
-- **bun 專案（如 AidRadar）不支援 `#semver:` 協定**（實測 404）——改嚴格 tag 釘版 `github:Megapower-Asia-LLC/design-system#v0.2.0`，升級時手動改 tag
+- npm 專案依賴字串用 semver range：`"@megapower/design-tokens": "github:Megapower-Asia-LLC/design-system#semver:^0.3"`（`npm update` 只升相容版，不再直接吃 main HEAD）
+- **bun 專案（如 AidRadar）不支援 `#semver:` 協定**（實測 404）——改嚴格 tag 釘版 `github:Megapower-Asia-LLC/design-system#v0.3.0`，升級時手動改 tag
 - **lockfile 必須 commit**、CI/部署一律 `npm ci`（bun 用 `bun install --frozen-lockfile`），否則釘版治理破功
-- 現況：MegaQ frontend/backend＝`#semver:^0.2`；AidRadar＝`#v0.2.0`（bun）
+- 現況：MegaQ frontend/backend＝`#semver:^0.3`；AidRadar＝`#v0.3.0`（bun）。⚠ 發 minor 時本清單、README 安裝示例、全域 ~/.claude/CLAUDE.md 快速指引三處版本字串一併更新
 
 ### Step 5 — inline 專案半自動跟上
 PrismSGA、MegaQuotr（原 quotr-py）、報價單模板（PDF/DOCX 無法引用外部），用批次替換（`sd`）：
