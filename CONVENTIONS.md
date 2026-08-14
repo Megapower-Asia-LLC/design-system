@@ -74,8 +74,64 @@
 | 語意元件（opt-in） | `components-app.css` | 帶語意色的元件變體（`.btn--danger`、`.form-input--error`…） | 內部工具另引，**必須先引 tokens-app.css** |
 
 - 門面永遠純橘+灰；語意色與其元件變體只活在 opt-in 兩檔。
-- `components-app.css` 依賴 `tokens-app.css`（載入順序：megapower.css → tokens-app.css → components-app.css）；其內部一律 `var(--color-danger, #B42318)` 帶 fallback，漏引 tokens-app 也不會壞版。
-- **dark mode 非設計目標**：深色只允許 `.section--dark` 區塊級用法，生成 UI 時不得自加 `prefers-color-scheme` 樣式。
+- `components-app.css` 依賴 `tokens-app.css`（載入順序：megapower.css → tokens-app.css → components-app.css）；其內部一律 `var(--color-danger, #B42318)` 帶 fallback。**fallback 常值定義為對齊 light 值**——degrade 路徑只保 light，引 components-app 而未引 tokens-app 的消費端**必須釘 `<html data-theme="light">`**。
+- **dark mode 條文沿革**：
+  - **舊條文（0.4.x 及以前）**：dark mode 為設計系統非目標功能。
+  - **現行條文（0.5.0 起）**：dark mode 為設計系統核心能力，`[data-theme="dark"]` 與 `prefers-color-scheme: dark` 為正式支援狀態（三態，詳下章）。不實作 dark mode 的消費端須在 `<html>` 上釘 `data-theme="light"` 以維持 0.4.x 視覺行為。消費端仍不得自造 `prefers-color-scheme` 樣式——深色一律吃 DS token。
+
+## Dark mode（0.5.0）
+
+**三態語意**：`:root` 為 light 預設；系統深色（`prefers-color-scheme: dark`）且頁面未釘 `data-theme="light"` 時自動套 dark；`<html data-theme="dark">` 手動勝出雙向。整站釘回淺色 = `<html data-theme="light">`（在 0.4.x CSS 下是無害 no-op，可提前部署）。
+
+**@layer 架構與覆寫鐵則**：DS 樣式全數在 `@layer mp-tokens, mp-components` 內；消費端 unlayered 樣式恆勝（不論 specificity）。因此——
+
+- **覆寫任何 `--color-*` token 必須三塊同構**（`:root` + `@media screen and (prefers-color-scheme: dark){ :root:not([data-theme="light"]) }` + `:root[data-theme="dark"]`）**提供 dark 值；做不到就釘 `data-theme="light"`**。只覆寫 light 值的舊寫法在 dark 態也會恆勝 DS 的 dark token，造成淺底淺字隱形。
+- 消費端頁面若有自建 `@layer`，插層順序自行負責；不建層（預設）即最高優先，行為可預期。
+
+**head 必備兩件**（防 FOUC；Astro/SSG 無法在 build time 預知使用者偏好，必用 inline）：
+
+```html
+<meta name="color-scheme" content="light dark">  <!-- 釘 light 的頁面改 content="light" -->
+<script>
+/* 必須位於 <head> 最頂、任何 stylesheet 之前、inline（外部 src 有網路延遲＝閃色） */
+(function () {
+  var t = localStorage.getItem('mp-theme');
+  if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+})();
+</script>
+```
+
+**切換 UI 官方 snippet**（活範例見 styleguide `/ds/` 頁原始碼）：切換時先在根元素掛 `.theme-switching`（配 `.theme-switching, .theme-switching * { transition: none !important }`）、寫入 `data-theme` 與 localStorage、兩個 `requestAnimationFrame` 後移除——防止 `.btn`/`.card` 等帶 transition 的元素與瞬變元素速度不一的切換撕裂。
+
+**品牌鐵則深色版**：
+
+- 橘 `#F06000` 深色下依然只當 icon／圓點／邊框強調（對深底 4.44:1，比 light 更醒目）；**不得在 badge／標籤／任意文字容器自造橘底包文字**。`.btn--primary`（橘底白字）為唯一經拍板的元件級例外（check-brand EXCEPTIONS 記錄），只能整顆引用、不得仿作。
+- **不得以 `--color-text` 當背景色或混色基色**（dark 下 text 反轉成淺色＝隱形）；深色強調區一律 `--color-surface-inverse`。
+- `--color-primary-soft-bg`（dark `#523618`）是「橘色環境輕染底」的輔助語意，不得單獨作為狀態唯一線索（搭配 icon／border）；**不得充當 selected／高亮底色**（對深卡底僅 1.03〜1.32:1）。selected 過渡期官方寫法：`.card--accent` 橘左框 + `--color-bg-hover` 亮化 surface 疊加；selected 專屬 token 排 0.6.0。
+- 深色下 surface hover 一律**亮化**（用 `--color-bg-hover`），不要 bg→bg-soft 的暗化寫法（會被讀成 disabled）。
+- 語意色（tokens-app）dark 版為淺 pastel，**僅當前景**（文字／icon／框），不得當白字底色；light 版才可作深色底。
+- `disabled` 態（opacity 0.6）對比豁免屬 WCAG inactive 例外——不得把 disabled 樣式挪用到非 disabled 場景。
+- 分類／來源型中性標籤（非狀態）勿自造、勿誤用 `.status` 四態；過渡期可用「`--color-bg-soft` 底 + `--color-border` 框 + `--color-text-muted` 字」最小組合（僅既有 token、不寫死色碼），官方 label 元件排 0.6.0。
+
+**Logo 三態**：`<picture media="(prefers-color-scheme: dark)">` 只跟系統、**不跟 `data-theme` 手動切換**——三態頁面用雙 img + CSS 顯隱（與 token 同組選擇器）：
+
+```html
+<img class="mp-logo-light" src="…/logo-full-light.png" alt="群兆資訊">
+<img class="mp-logo-dark"  src="…/logo-full-dark.png"  alt="群兆資訊" hidden>
+```
+```css
+@media screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .mp-logo-light { display: none; }
+  :root:not([data-theme="light"]) .mp-logo-dark  { display: block; }
+}
+:root[data-theme="dark"] .mp-logo-light { display: none; }
+:root[data-theme="dark"] .mp-logo-dark  { display: block; }
+```
+（`hidden` 屬性由 CSS `display` 覆寫控制；釘 light 的頁面直接用單張 light 版即可。）
+
+**forced-colors（Windows 高對比）行為聲明**：token 色全數被系統色覆蓋屬預期。焦點靠 solid outline（會被強制上色、保留繪製）、`.status` 靠 icon 形狀、`.card--accent` 深高對比下左框自動加粗（6px）——皆不依賴顏色單一線索。`box-shadow`（focus 光暈）在 forced-colors 下被剝除屬預期，主辨識不依賴它。
+
+**列印**：一律回 light（`@media print` unlayered token 重設，含手動 `data-theme="dark"` 情境）。
 
 ## 元件收編準則（給維護者與 agent 的決策規則）
 

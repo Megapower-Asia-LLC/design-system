@@ -1,5 +1,14 @@
-/* Megapower Design System — content sha256:cd2d7577d26e — generated 2026-07-09T11:37:39.010Z (base c7b707e) — 勿手改；改 src/styles 後執行 scripts/gen-ds.mjs 重新產生 */
+/* Megapower Design System — content sha256:b08120c572dd — generated 2026-08-14T09:38:54.422Z (父層 HEAD c82fe61，非本檔最終歸屬 commit) — 勿手改；改 src/styles 後執行 scripts/gen-ds.mjs 重新產生 */
+@layer mp-tokens, mp-components;
+
+/* @layer 結構（0.5.0 dark mode）：token 全數在 mp-tokens 層——unlayered 消費端覆寫恆勝，
+   specificity 不再參戰；層序宣告在 global.css 檔頭與 gen-ds 門面模板頂（本檔不宣告，維持素身可串接）。
+   消費端覆寫鐵則：覆寫任何 --color-* 必須三塊同構給 dark 值，否則釘 <html data-theme="light">（見 conventions）。 */
+@layer mp-tokens {
+
 :root {
+  color-scheme: light;
+
   /* === Color (6 tokens) === */
   --color-bg:         #FFFFFF;
   --color-text:       #1E293B;
@@ -13,6 +22,13 @@
   --color-primary-hover:   #D45200;
   --color-primary-tint:    color-mix(in srgb, var(--color-primary) 12%, transparent);
   --color-primary-soft-bg: #FFF7ED;
+
+  /* === 0.5.0 dark mode 新增（light 值＝既有行為的別名，零視覺 diff）=== */
+  --color-surface-inverse: #1E293B;                  /* 深色強調區底（.section--dark）——不得再以 --color-text 當背景 */
+  --color-focus-ring:      var(--color-primary-tint); /* 表單 focus 光暈（第三層輔助；主辨識＝outline 橘） */
+  --color-bg-hover:        var(--color-bg-soft);      /* surface hover——dark 下亮化（deep-mode hover 慣例） */
+  --color-input-bg:        var(--color-bg);           /* 表單控件底——dark 下內凹（= bg-soft） */
+  --color-border-input:    var(--color-border);       /* 表單邊框——dark 下需過 WCAG 1.4.11（3:1），與裝飾 border 分離 */
 
   /* Back-compat aliases (transitional, PR2 cleanup) */
   --color-primary-dark:  var(--color-primary-hover);
@@ -80,7 +96,59 @@
 @media (max-width: 768px) {
   :root { --spacing-section: 3.5rem; }
 }
+
+/* ============================================================
+   Dark mode（0.5.0，三態）：下面兩塊內容必須完全一致（僅 selector 異）——
+   check-brand 守門 [dark-a]。值一律靜態（hex/rgba/var 別名），禁 color-mix（守門 [dark-g]，
+   運行時函式逃逸靜態驗算）。全組合 WCAG 驗算數據見設計方案 v4 §3.1。
+   media 塊加 screen 限定：排除「列印時引擎跟隨系統深色」差異；
+   手動列印回 light 由 global.css 的 unlayered print 重設負責。
+   ============================================================ */
+@media screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-bg:         #1E293B;
+    --color-text:       #E2E8F0;
+    --color-text-muted: #94A3B8;
+    --color-border:     #475569;
+    --color-bg-soft:    #0F172A;
+    --color-primary-tint:    rgba(240, 96, 0, 0.25);
+    --color-primary-soft-bg: #523618;
+    --color-surface-inverse: #0F172A;
+    --color-focus-ring:      #9C4A18;
+    --color-bg-hover:        #2A3752;
+    --color-input-bg:        var(--color-bg-soft);
+    --color-border-input:    #64748B;
+    --shadow-sm: none;
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.28);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.38);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg:         #1E293B;
+  --color-text:       #E2E8F0;
+  --color-text-muted: #94A3B8;
+  --color-border:     #475569;
+  --color-bg-soft:    #0F172A;
+  --color-primary-tint:    rgba(240, 96, 0, 0.25);
+  --color-primary-soft-bg: #523618;
+  --color-surface-inverse: #0F172A;
+  --color-focus-ring:      #9C4A18;
+  --color-bg-hover:        #2A3752;
+  --color-input-bg:        var(--color-bg-soft);
+  --color-border-input:    #64748B;
+  --shadow-sm: none;
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.38);
+}
+
+} /* end @layer mp-tokens */
+
 /* Megapower Design System — base + component styles (generated) */
+
+@layer mp-components {
 
 /* === Reset === */
 *,
@@ -162,6 +230,11 @@ select {
 button {
   cursor: pointer;
 }
+
+} /* end @layer mp-components */
+
+@layer mp-components {
+
 /* ============================================================
    Components — v0.1 (Phase 3 W3)
    Global classes：.btn / .section / .card 三件套
@@ -270,7 +343,10 @@ button {
   padding: var(--spacing-section) var(--spacing-container);
 }
 .section--soft { background: var(--color-bg-soft); }
-.section--dark { background: var(--color-text); color: #fff; }
+/* 0.5.0：底改走 --color-surface-inverse（light 值同原 --color-text，零視覺 diff）。
+   原寫法 background: var(--color-text) 在整站 dark 下 text 反轉成淺色＝淺底白字隱形；
+   「以 --color-text 當背景」自此為禁用 pattern（conventions 明文）。 */
+.section--dark { background: var(--color-surface-inverse); color: #fff; }
 /* 深底標題與連結：base 的元素級 h1-h6/a 深灰宣告勝過 .section--dark 的繼承白字——
    沒有這兩條，深底區塊的標題/連結整段隱形（styleguide 審查 headless 實測 1.00:1）。
    下游先前各自 scoped color:#fff 的 workaround 可逐步移除。 */
@@ -385,8 +461,8 @@ button {
   font-size: var(--text-base);
   line-height: var(--line-height-base);
   color: var(--color-text);
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
+  background: var(--color-input-bg);          /* 0.5.0：light=bg（不變）；dark=bg-soft 內凹，控件不靠 border 也有感知邊界 */
+  border: 1px solid var(--color-border-input); /* 0.5.0：表單邊框獨立 token——dark #64748B 過 WCAG 1.4.11（3:1），與裝飾 border 分離 */
   border-radius: var(--radius-md);
   transition: border-color var(--transition-fast),
               box-shadow var(--transition-fast);
@@ -403,16 +479,19 @@ button {
   border-color: var(--color-text-muted); /* hover 灰框加深提示可互動（fixreq 慣例） */
 }
 
-/* focus 統一策略（Phase 4 拍板）：表單控件是全域 :focus-visible 橘 outline 的唯一豁免——
-   改走「品牌橘框 + 12% tint 光暈」雙層指示（豁免條件：兩層都要給，不得只 outline:none）。
-   一律寫 :focus-visible 不寫 :focus：文字輸入控件聚焦瀏覽器一律視為 visible，行為等同 :focus，
-   但語彙與全域規則自洽。下游 .form-*:focus 舊寫法收編後淘汰。 */
+/* focus 三層策略（0.5.0 拍板，推翻 Phase 4「表單豁免 outline」）：outline 橘為主辨識層
+   （dark 4.44:1／light 圖形 3.29:1，且 forced-colors 下 solid outline 保留繪製、被強制上系統色，
+   免 transparent hack）+ border 橘第二層 + focus-ring 光暈第三層（forced-colors 下 box-shadow
+   被剝除屬預期，主辨識不依賴它）。推翻理由：outline 貼圓角為 2023 基線內行為（與 color-mix 同代）、
+   兩輪 pplx 獨立評審同方向、全站 focus 語彙統一（表單不再是唯一特例）。
+   一律寫 :focus-visible 不寫 :focus：文字輸入控件聚焦瀏覽器一律視為 visible，語彙與全域自洽。 */
 .form-input:focus-visible,
 .form-select:focus-visible,
 .form-textarea:focus-visible {
-  outline: none;
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-tint);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .form-select {
@@ -458,7 +537,20 @@ button {
   }
 }
 
+/* === Forced colors（Windows 高對比）=== */
+/* card--accent 的識別線索是橘左框「顏色」，forced-colors 會強制覆蓋色彩——
+   補結構性差異（左框加粗）讓 accent 卡在 WHCM 下仍可與一般卡區辨（WCAG 1.4.1 精神）。
+   .status 靠 icon 形狀、focus 靠 solid outline，WHCM 下均天然成立，無需另補。 */
+@media (forced-colors: active) {
+  .card--accent { border-left-width: 6px; }
+}
+
+} /* end @layer mp-components */
+
 /* === Utilities (from global.css) === */
+/* === Utilities（0.5.0 起包 mp-components 層；unlayered 只留檔尾 print 重設）=== */
+@layer mp-components {
+
 /* === Skip link & a11y utility（既有保留） === */
 .skip-link {
   position: absolute;
@@ -510,10 +602,38 @@ button {
 [id] {
   scroll-margin-top: 80px;
 }
-/* === Print（Phase 5 最小集）=== */
-/* 報價單/客戶追蹤頁列印場景：深色區塊轉白底、卡片陰影轉框線、按鈕不噴墨底。
-   .status 本就不靠底色辨識（icon+文字，WCAG 1.4.1），瀏覽器不印背景也可讀。 */
+
+} /* end @layer mp-components */
+
+/* === Print（Phase 5 最小集 + 0.5.0 dark 重設）=== */
+/* 本塊刻意 unlayered 且位於檔尾：unlayered 恆勝所有 @layer 內容（含兩塊 dark token），
+   不打 specificity 仗（check-brand [dark-f] 守門「print 在所有 layer 之後且 layer 外」）。
+   token 重設值必須與 tokens.css light 桶逐字一致（check-brand [dark-c] 守門防漂移）。
+   selector 帶 :root[data-theme="dark"] 為雙保險（若未來誤入 layer 仍以同 specificity+順序勝）。
+   media 版 dark 塊已由 tokens.css 的 `screen and` 限定排除於列印。 */
 @media print {
+  :root,
+  :root[data-theme="dark"] {
+    color-scheme: light;
+    --color-bg:         #FFFFFF;
+    --color-text:       #1E293B;
+    --color-text-muted: #64748B;
+    --color-border:     #E2E8F0;
+    --color-bg-soft:    #F8FAFC;
+    --color-primary-tint:    color-mix(in srgb, var(--color-primary) 12%, transparent);
+    --color-primary-soft-bg: #FFF7ED;
+    --color-surface-inverse: #1E293B;
+    --color-focus-ring:      var(--color-primary-tint);
+    --color-bg-hover:        var(--color-bg-soft);
+    --color-input-bg:        var(--color-bg);
+    --color-border-input:    var(--color-border);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.10);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  /* 報價單/客戶追蹤頁列印場景：深色區塊轉白底、卡片陰影轉框線、按鈕不噴墨底。
+     .status 本就不靠底色辨識（icon+文字，WCAG 1.4.1），瀏覽器不印背景也可讀。 */
   .skip-link { display: none; }
   .section--dark {
     background: #fff !important;
