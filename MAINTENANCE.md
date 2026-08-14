@@ -85,7 +85,7 @@ fd -e html -e ts . ~/Projects/megaq/backend -E node_modules -x sd 'F06000' '新�
 | 專案 | 接入方式 | repo（分支） |
 |---|---|---|
 | megaweb | 來源本身 | `Megapower-Asia-LLC/megaweb` (master) |
-| AidRadar | npm 套件 | `aiken884/aidradar` (main) |
+| AidRadar | npm 套件（bun 專案，嚴格 tag 釘版 `#v0.4.0`——bun 不支援 `#semver:`；minor 發版不自動拉入，升版改 tag 時才需驗收） | `aiken884/aidradar` (main) |
 | MegaQ 前端 | npm 套件 | `aiken884/MegaQ` (master) |
 | MegaQ 後端模板 / XLSX | inline（`sd` 批次） | 同上 |
 | PrismSGA | inline（`sd` 批次）→ 待升級 vendoring `--inline` | `aiken884/PrismSGA` (main) |
