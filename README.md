@@ -43,7 +43,24 @@ HTML 加一行即可（零安裝、零 build，任何技術棧）：
 
 **覆寫 token 鐵則（@layer）**：0.5.0 起 DS token 包在 `@layer mp-tokens`，你在 layer 外的 `:root { --color-x: … }` 覆寫恆勝——**但 dark 模式下也勝**。因此覆寫任何 `--color-*` 必須「三塊同構」一併給 dark 值（light `:root`／`@media screen and (prefers-color-scheme: dark)` 內 `:root:not([data-theme="light"])`／`:root[data-theme="dark"]`），否則該頁必須釘 `data-theme="light"`。`npx ds-guard` 會抓違規（R8）。
 
-深色下 logo 用 dark 版；三態下的 logo 顯隱 pattern 見 `ds-bundle/BRAND-ASSETS.md`。
+**深色下 logo 用 dark 版。** 三態頁面勿用 `<picture media>`（只跟系統、不跟 `data-theme` 手動切換）；正確 pattern 是雙 img ＋ 與 token 同組選擇器的 CSS 顯隱：
+
+```html
+<img class="logo-on-light" src=".../logo-mark-light.png" alt="群兆資訊" width="40" height="40">
+<img class="logo-on-dark"  src=".../logo-mark-dark.png"  alt="群兆資訊" width="40" height="40">
+```
+
+```css
+.logo-on-dark { display: none; }
+@media screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .logo-on-light { display: none; }
+  :root:not([data-theme="light"]) .logo-on-dark  { display: inline; }
+}
+:root[data-theme="dark"] .logo-on-light { display: none; }
+:root[data-theme="dark"] .logo-on-dark  { display: inline; }
+```
+
+釘 `data-theme="light"` 的頁面照舊單張 light 版；永遠深底的區塊（`.section--dark`）一律 dark 版。
 
 ## 作為 npm 套件安裝（React / Tailwind 等需編譯的專案）
 

@@ -108,7 +108,7 @@
 - 橘 `#F06000` 深色下依然只當 icon／圓點／邊框強調（對深底 4.44:1，比 light 更醒目）；**不得在 badge／標籤／任意文字容器自造橘底包文字**。`.btn--primary`（橘底白字）為唯一經拍板的元件級例外（check-brand EXCEPTIONS 記錄），只能整顆引用、不得仿作。
 - **不得以 `--color-text` 當背景色或混色基色**（dark 下 text 反轉成淺色＝隱形）；深色強調區一律 `--color-surface-inverse`。
 - `--color-primary-soft-bg`（dark `#523618`）是「橘色環境輕染底」的輔助語意，不得單獨作為狀態唯一線索（搭配 icon／border）；**不得充當 selected／高亮底色**（對深卡底僅 1.03〜1.32:1）。selected 過渡期官方寫法：`.card--accent` 橘左框 + `--color-bg-hover` 亮化 surface 疊加；selected 專屬 token 排 0.6.0。
-- 深色下 surface hover 一律**亮化**（用 `--color-bg-hover`），不要 bg→bg-soft 的暗化寫法（會被讀成 disabled）。
+- 深色下 surface hover 一律**亮化**（用 `--color-bg-hover`），不要 bg→bg-soft 的暗化寫法（會被讀成 disabled）。**hover 容器內的次要文字預設用 `--color-text`、不用 muted**（muted 對亮化後的 hover 底僅 3.8:1，掉出 AA）；muted 只用在非 hover／非強互動 surface。此規則出現多個例外時才考慮補專用 token（0.5.1 pplx 裁定，避免 token 爆炸）。
 - 語意色（tokens-app）dark 版為淺 pastel，**僅當前景**（文字／icon／框），不得當白字底色；light 版才可作深色底。
 - `disabled` 態（opacity 0.6）對比豁免屬 WCAG inactive 例外——不得把 disabled 樣式挪用到非 disabled 場景。
 - 分類／來源型中性標籤（非狀態）勿自造、勿誤用 `.status` 四態；過渡期可用「`--color-bg-soft` 底 + `--color-border` 框 + `--color-text-muted` 字」最小組合（僅既有 token、不寫死色碼），官方 label 元件排 0.6.0。

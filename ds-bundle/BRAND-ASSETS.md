@@ -32,27 +32,6 @@
      alt="群兆資訊" width="40" height="40">
 ```
 
-## Dark mode 三態下的 logo 選版（0.5.0 起）
-
-`<picture media>` 只跟系統偏好、**不跟 `data-theme` 手動切換**——三態頁面勿用。正確 pattern：雙 img + 與 token 同組選擇器的 CSS 顯隱（跟著三態走，含手動切換）：
-
-```html
-<img class="logo-on-light" src=".../logo-mark-light.png" alt="群兆資訊" width="40" height="40">
-<img class="logo-on-dark"  src=".../logo-mark-dark.png"  alt="群兆資訊" width="40" height="40">
-```
-
-```css
-.logo-on-dark { display: none; }
-@media screen and (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .logo-on-light { display: none; }
-  :root:not([data-theme="light"]) .logo-on-dark  { display: inline; }
-}
-:root[data-theme="dark"] .logo-on-light { display: none; }
-:root[data-theme="dark"] .logo-on-dark  { display: inline; }
-```
-
-只釘 `data-theme="light"` 的頁面照舊單張 light 版即可。永遠深底的區塊（如 `.section--dark`）不論主題一律 dark 版。
-
 ## 自託管 / vendoring 取用
 
 含敏感資料或需嚴格 CSP `self-only` 的頁面（如客戶追蹤頁），**勿**引用上面的公開 URL——logo 亦隨 npm 套件發佈，可經 `@megapower/design-tokens/logo/<檔名>` 取得，用 vendoring 腳本複製進自家 `public/assets/logos/`（見 design-system MAINTENANCE §7），頁面以相對路徑引用：

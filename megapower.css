@@ -1,4 +1,4 @@
-/* Megapower Design System — content sha256:b08120c572dd — generated 2026-08-14T09:38:54.422Z (父層 HEAD c82fe61，非本檔最終歸屬 commit) — 勿手改；改 src/styles 後執行 scripts/gen-ds.mjs 重新產生 */
+/* Megapower Design System — content sha256:0e8005100dd5 — generated 2026-08-14T10:25:24.272Z (父層 HEAD 35ebb7a，非本檔最終歸屬 commit) — 勿手改；改 src/styles 後執行 scripts/gen-ds.mjs 重新產生 */
 @layer mp-tokens, mp-components;
 
 /* @layer 結構（0.5.0 dark mode）：token 全數在 mp-tokens 層——unlayered 消費端覆寫恆勝，
@@ -110,13 +110,13 @@
     --color-bg:         #1E293B;
     --color-text:       #E2E8F0;
     --color-text-muted: #94A3B8;
-    --color-border:     #475569;
+    --color-border:     #57667C;
     --color-bg-soft:    #0F172A;
     --color-primary-tint:    rgba(240, 96, 0, 0.25);
     --color-primary-soft-bg: #523618;
     --color-surface-inverse: #0F172A;
     --color-focus-ring:      #9C4A18;
-    --color-bg-hover:        #2A3752;
+    --color-bg-hover:        #33455F;
     --color-input-bg:        var(--color-bg-soft);
     --color-border-input:    #64748B;
     --shadow-sm: none;
@@ -130,13 +130,13 @@
   --color-bg:         #1E293B;
   --color-text:       #E2E8F0;
   --color-text-muted: #94A3B8;
-  --color-border:     #475569;
+  --color-border:     #57667C;
   --color-bg-soft:    #0F172A;
   --color-primary-tint:    rgba(240, 96, 0, 0.25);
   --color-primary-soft-bg: #523618;
   --color-surface-inverse: #0F172A;
   --color-focus-ring:      #9C4A18;
-  --color-bg-hover:        #2A3752;
+  --color-bg-hover:        #33455F;
   --color-input-bg:        var(--color-bg-soft);
   --color-border-input:    #64748B;
   --shadow-sm: none;
