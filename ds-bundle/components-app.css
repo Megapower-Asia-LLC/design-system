@@ -1,3 +1,7 @@
+@layer mp-tokens, mp-components;
+
+@layer mp-components {
+
 /* ============================================================
    Megapower Design System — 應用層語意元件（opt-in，非品牌門面）
    Phase 4 新增：帶語意色的元件變體住這裡，品牌門面 megapower.css 永遠純橘+灰。
@@ -60,3 +64,5 @@
 .form-error-text a:hover {
   text-decoration-color: var(--color-danger, #B42318);
 }
+
+} /* end @layer mp-components */

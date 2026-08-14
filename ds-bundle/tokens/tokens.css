@@ -1,4 +1,11 @@
+/* @layer 結構（0.5.0 dark mode）：token 全數在 mp-tokens 層——unlayered 消費端覆寫恆勝，
+   specificity 不再參戰；層序宣告在 global.css 檔頭與 gen-ds 門面模板頂（本檔不宣告，維持素身可串接）。
+   消費端覆寫鐵則：覆寫任何 --color-* 必須三塊同構給 dark 值，否則釘 <html data-theme="light">（見 conventions）。 */
+@layer mp-tokens {
+
 :root {
+  color-scheme: light;
+
   /* === Color (6 tokens) === */
   --color-bg:         #FFFFFF;
   --color-text:       #1E293B;
@@ -12,6 +19,13 @@
   --color-primary-hover:   #D45200;
   --color-primary-tint:    color-mix(in srgb, var(--color-primary) 12%, transparent);
   --color-primary-soft-bg: #FFF7ED;
+
+  /* === 0.5.0 dark mode 新增（light 值＝既有行為的別名，零視覺 diff）=== */
+  --color-surface-inverse: #1E293B;                  /* 深色強調區底（.section--dark）——不得再以 --color-text 當背景 */
+  --color-focus-ring:      var(--color-primary-tint); /* 表單 focus 光暈（第三層輔助；主辨識＝outline 橘） */
+  --color-bg-hover:        var(--color-bg-soft);      /* surface hover——dark 下亮化（deep-mode hover 慣例） */
+  --color-input-bg:        var(--color-bg);           /* 表單控件底——dark 下內凹（= bg-soft） */
+  --color-border-input:    var(--color-border);       /* 表單邊框——dark 下需過 WCAG 1.4.11（3:1），與裝飾 border 分離 */
 
   /* Back-compat aliases (transitional, PR2 cleanup) */
   --color-primary-dark:  var(--color-primary-hover);
@@ -79,3 +93,52 @@
 @media (max-width: 768px) {
   :root { --spacing-section: 3.5rem; }
 }
+
+/* ============================================================
+   Dark mode（0.5.0，三態）：下面兩塊內容必須完全一致（僅 selector 異）——
+   check-brand 守門 [dark-a]。值一律靜態（hex/rgba/var 別名），禁 color-mix（守門 [dark-g]，
+   運行時函式逃逸靜態驗算）。全組合 WCAG 驗算數據見設計方案 v4 §3.1。
+   media 塊加 screen 限定：排除「列印時引擎跟隨系統深色」差異；
+   手動列印回 light 由 global.css 的 unlayered print 重設負責。
+   ============================================================ */
+@media screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-bg:         #1E293B;
+    --color-text:       #E2E8F0;
+    --color-text-muted: #94A3B8;
+    --color-border:     #57667C;
+    --color-bg-soft:    #0F172A;
+    --color-primary-tint:    rgba(240, 96, 0, 0.25);
+    --color-primary-soft-bg: #523618;
+    --color-surface-inverse: #0F172A;
+    --color-focus-ring:      #9C4A18;
+    --color-bg-hover:        #33455F;
+    --color-input-bg:        var(--color-bg-soft);
+    --color-border-input:    #64748B;
+    --shadow-sm: none;
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.28);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.38);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg:         #1E293B;
+  --color-text:       #E2E8F0;
+  --color-text-muted: #94A3B8;
+  --color-border:     #57667C;
+  --color-bg-soft:    #0F172A;
+  --color-primary-tint:    rgba(240, 96, 0, 0.25);
+  --color-primary-soft-bg: #523618;
+  --color-surface-inverse: #0F172A;
+  --color-focus-ring:      #9C4A18;
+  --color-bg-hover:        #33455F;
+  --color-input-bg:        var(--color-bg-soft);
+  --color-border-input:    #64748B;
+  --shadow-sm: none;
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.38);
+}
+
+} /* end @layer mp-tokens */

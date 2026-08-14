@@ -16,12 +16,19 @@
  *                           字面值（由 sd 批次/vendor 管理），其他規則照抓
  * 其他參數：--root=<dir> 掃描起點（預設 cwd）；--exclude=<glob 逗號清單> 追加排除。
  *
- * 規則（R1–R5）：
+ * 規則（R1–R8）：
  *   R1 禁用色碼：Tailwind 橘 #F97316、走鐘前科 #16a34a/#10B981；linked 模式再加 #F06000/#D45200
  *   R2 自造狀態態：.status--<非 canonical 四態>（業務態應走映射規約）；.btn--success/.btn--info
  *   R3 web font：@font-face、fonts.googleapis、@fontsource（PSI 效能鐵則）
  *   R4 覆蓋 DS 核心：CSS 重新宣告 .btn{ /.status{ /.card{ /.section{（基底，非 modifier）
  *   R5 橘做文字色：color: #F06000/var(--color-primary)（icon selector 例外同 check-brand）
+ *   R6 --color-text 當背景：dark 三態下 text 反轉為淺色，背景會隱形——深色強調區改 var(--color-surface-inverse)
+ *   R7 本地 dark hack：自寫 @media prefers-color-scheme / [data-theme="dark"] 樣式塊——dark 由 DS 三態
+ *      提供；僅「DS token 三塊同構覆寫」屬合法（該行加 ds-guard-allow: R7 豁免）
+ *   R8 只覆寫 light：重宣告 --color-* token 但檔內無 dark 同構訊號——@layer 下該覆寫在 dark 模式也生效，
+ *      會造成「消費端淺底＋DS 淺字」隱形；三塊同構給 dark 值、或頁面釘 <html data-theme="light">
+ *
+ * 豁免：該行（或宣告行）尾註 ds-guard-allow: R<n>（逗號可列多條；審慎使用、留下理由）
  */
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative, basename } from 'node:path';
@@ -72,6 +79,9 @@ const scan = (file) => {
   const lines = text.split('\n');
   const isCss = /\.(css|scss)$/.test(file);
   let inBlockComment = false; // 塊註解狀態機（行號保持正確；註解內容不檢查——「收編註解」等說明文字不誤報）
+  // R8 檔案級狀態：token 覆寫行 vs dark 同構訊號（prefers-color-scheme / data-theme dark 塊 / 釘 light）
+  const tokenOverrideLines = [];
+  let hasDarkSignal = /prefers-color-scheme|data-theme=["']?(dark|light)/.test(text);
   lines.forEach((raw, idx) => {
     const n = idx + 1;
     // 字面 \n 轉義的內嵌 CSS 字串（如 Python assets.py 單行大字串）：拆虛擬子行逐段掃，行號報實體行
@@ -82,8 +92,16 @@ const scan = (file) => {
     scanLine(raw, n);
   });
 
+  // R8 檔案級判定：有 DS token 覆寫、卻無任何 dark 同構訊號（掃描完整檔後才知道）
+  if (tokenOverrideLines.length && !hasDarkSignal)
+    report(file, tokenOverrideLines[0], 'R8',
+      `重宣告 DS token（--color-*）但檔內無 dark 同構——@layer 下此覆寫於 dark 模式仍生效，會成「你的淺底＋DS 淺字」隱形。三選一：三塊同構補 dark 值／頁面釘 <html data-theme="light">／移除覆寫（共 ${tokenOverrideLines.length} 行宣告）`);
+
   function scanLine(line, n) {
     if (inBlockComment) { if (line.includes('*/')) inBlockComment = false; return; }
+    const allow = new Set([...line.matchAll(/ds-guard-allow:\s*((?:R\d+|all)(?:\s*,\s*(?:R\d+|all))*)/gi)]
+      .flatMap((m) => m[1].split(',').map((s) => s.trim().toUpperCase())));
+    const allowed = (rule) => allow.has(rule) || allow.has('ALL');
     const trimmed = line.trim();
     if (trimmed.startsWith('/*') && trimmed.includes('*/')) return;          // 單行完整塊註解
     if (line.includes('/*') && !line.includes('*/')) inBlockComment = true;  // 開多行塊註解（本行仍檢查註解前的程式碼——保守）
@@ -124,6 +142,18 @@ const scan = (file) => {
     const nearIcon = /__icon/.test(line) || /__icon/.test(lines[n - 2] ?? '') || /__icon/.test(lines[n - 3] ?? '');
     if (/(?<![-\w])color\s*:\s*(var\(--color-primary(-hover)?\)|#(F06000|D45200))/i.test(line) && !nearIcon)
       report(file, n, 'R5', '品牌橘不做文字色（對白 3.29:1 fail AA）——文字走深灰，橘只進 icon/邊框/底色（≥24px 粗體大標 3:1 過關屬合法，人工複核）');
+
+    // R6 --color-text 當背景（0.5.0 dark 三態下 text 反轉為淺色，背景隱形——fixreq footer 事故 pattern）
+    if (/background(?:-color)?\s*:\s*var\(--color-text\)/i.test(line) && !allowed('R6'))
+      report(file, n, 'R6', '不得以 var(--color-text) 當背景——dark 模式下 text 反轉為淺色即隱形；深色強調區改 var(--color-surface-inverse)');
+
+    // R7 本地 dark hack（dark 由 DS 三態提供；純 DS token 三塊同構覆寫屬合法→行尾 ds-guard-allow: R7）
+    if ((/@media[^{]*prefers-color-scheme/i.test(line) || (cssCtx && /\[data-theme=["']dark["']\]/.test(line))) && !allowed('R7'))
+      report(file, n, 'R7', '自寫 dark 樣式塊——dark 已由 DS 三態機制提供，本地 hack 會與三態衝突；若此塊僅為 DS token 三塊同構覆寫，行尾加 ds-guard-allow: R7 並留理由');
+
+    // R8 素材收集：重宣告 DS 命名空間 token（--color-*: 宣告，非 var() 引用）
+    if (/--color-[\w-]+\s*:/.test(line) && (cssCtx || /:root/.test(line)) && !allowed('R8'))
+      tokenOverrideLines.push(n);
   }
 };
 

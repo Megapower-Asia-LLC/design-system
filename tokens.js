@@ -4,8 +4,10 @@
 // 用法：import { color, fontSans } from "@megapower/design-tokens";
 //
 // 不在此檔的 token（derived in CSS only，JS 端不可用）：
-//   --color-primary-tint（color-mix() 執行期表達式）
+//   --color-primary-tint, --color-focus-ring（color-mix() 執行期表達式）
 // 語意色（success/warning/danger/info）刻意不匯出——opt-in CSS（tokens-app.css），門面 JS/CSS 一致只含橘+灰。
+// 0.5.0 起：匯出值一律為 light 基準值；dark 值僅 CSS 層提供（tokens.css @layer mp-tokens 內
+// 兩塊 dark 覆蓋，三態切換見 CONVENTIONS.md dark 章）。JS 端取值於 dark 頁面仍是 light 色。
 
 export const color = {
   "bg": "#FFFFFF",
@@ -16,6 +18,10 @@ export const color = {
   "primary": "#F06000",
   "primaryHover": "#D45200",
   "primarySoftBg": "#FFF7ED",
+  "surfaceInverse": "#1E293B",
+  "bgHover": "#F8FAFC",
+  "inputBg": "#FFFFFF",
+  "borderInput": "#E2E8F0",
 };
 
 export const fontSans =

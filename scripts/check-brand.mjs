@@ -16,6 +16,11 @@
  *   [4] 寫死色碼白名單：hex 與全部函數色（rgb/hsl/hwb/lab/lch/oklab/oklch/color）僅允許 HARDCODED_ALLOWED；
  *       色彩屬性上的 CSS 命名色（white/orangered…）一律禁止
  *   [5] ds-bundle 上傳包完整性：必要檔案、@dsCard marker、斷連參照、info 色、class 覆蓋（含單橫線 typo）
+ *   [6] dark mode 守門（0.5.0）：token 解析為 scope-aware 三桶（light / media-dark / attr-dark），
+ *       既有斷言一律走 light 桶（行為不變）；新增七斷言 [dark-a]〜[dark-g]：
+ *       (a) 兩 dark 塊宣告完全一致 (b) dark 桶 WCAG 對比固化 (c) print 重設值 === light 桶
+ *       (d) fallback 對齊 light 桶（併入 [4c]） (e) input-bg(dark)=var(--color-bg-soft)
+ *       (f) 門面 print 塊在所有 @layer 之外且位於其後 (g) dark 桶禁 color-mix（逃逸靜態驗算）
  *
  * 失敗 exit 1（擋 build）。SoT 在 megaweb/scripts/，design-system 的副本由同步流程帶過去，勿分岔手改。
  * 所有讀檔一律正規化行尾（\r\n→\n），Windows checkout 不誤攔。
@@ -113,8 +118,8 @@ if (MODE === 'megaweb') {
   globalLines.forEach((l, i) => { if (/^\s*@import\b/.test(l)) lastImport = i; });
   if (lastImport === -1) fail('derive', 'global.css 找不到 @import 錨點——尾段切割配方失效');
   const globalTail = globalLines.slice(lastImport + 1).join('\n').replace(/^\n+/, '');
-  for (const sentinel of ['.skip-link', '.sr-only', ':focus-visible', '@media print'])
-    if (!globalTail.includes(sentinel)) fail('derive', `global.css 尾段缺哨兵「${sentinel}」——utilities 被切掉`);
+  for (const sentinel of ['.skip-link', '.sr-only', ':focus-visible', '@media print', '@layer mp-components'])
+    if (!globalTail.includes(sentinel)) fail('derive', `global.css 尾段缺哨兵「${sentinel}」——utilities 被切掉或漏包層`);
   const expectBundle =
     '/* Megapower Design System — base + component styles (generated) */\n\n' +
     read(join(ROOT, 'src/styles/base.css')) + '\n' +
@@ -147,9 +152,11 @@ else {
     fail('facade', '門面第一行缺指紋 header（content sha256:… — generated …）——用 scripts/gen-ds.mjs 產生，勿手改');
   else if (hm[1] !== bodyHash)
     fail('facade', `門面指紋 ${hm[1]} ≠ 主體實算 ${bodyHash}——內容被手改過，跑 scripts/gen-ds.mjs 重產`);
-  const expectBody = read(join(bundleDir, 'tokens/tokens.css')) + '\n' + read(join(bundleDir, '_ds_bundle.css'));
+  // 0.5.0：門面 body 最頂為 gen-ds 補的 @layer 層序宣告（單檔唯一一次）
+  const expectBody = '@layer mp-tokens, mp-components;\n\n'
+    + read(join(bundleDir, 'tokens/tokens.css')) + '\n' + read(join(bundleDir, '_ds_bundle.css'));
   if (body !== expectBody)
-    fail('facade', '門面內容 ≠ tokens.css + _ds_bundle.css 串接（drift！跑 scripts/gen-ds.mjs 重產）');
+    fail('facade', '門面內容 ≠ @layer 宣告 + tokens.css + _ds_bundle.css 串接（drift！跑 scripts/gen-ds.mjs 重產）');
   // 產物健全性：損毀 CSS 不得出門
   if (/@import\b/.test(body)) fail('facade', '門面主體含 @import——產生配方錯位');
   const braces = (body.match(/{/g) || []).length - (body.match(/}/g) || []).length;
@@ -162,15 +169,57 @@ else {
     fail('bypass', `缺旁路 hash 檔 megapower.${bodyHash}.css（跑 scripts/gen-ds.mjs；舊 hash 檔保留勿刪）`);
 }
 
-// ============ [2] WCAG 對比三分類 ============
+// ============ [2] WCAG 對比三分類（0.5.0：scope-aware 三桶解析） ============
 
 const tokensCss = read(join(bundleDir, 'tokens/tokens.css'));
 const tokensAppCss = read(join(bundleDir, 'tokens/tokens-app.css'));
+
+/* 三桶切割：dark 兩塊（media / attr）用起始 marker + 大括號平衡取範圍，其餘＝light。
+   flat matchAll 在 dark token 進場後會 last-wins 蓋掉 light 值、既有斷言全數誤判
+   （設計 v4／實作計畫 DS-1，design-system 端實讀確認）——故一切斷言先選桶再驗。 */
+const extractBlock = (css, startRe) => {
+  const m = css.match(startRe);
+  if (!m) return null;
+  const open = css.indexOf('{', m.index);
+  if (open === -1) return null;
+  let depth = 0;
+  for (let i = open; i < css.length; i++) {
+    if (css[i] === '{') depth++;
+    else if (css[i] === '}' && --depth === 0) return { start: m.index, end: i + 1, text: css.slice(m.index, i + 1) };
+  }
+  return null;
+};
+const MEDIA_DARK_RE = /@media screen and \(prefers-color-scheme: dark\)/;
+const ATTR_DARK_RE = /:root\[data-theme="dark"\]/;
+const splitBuckets = (css) => {
+  let rest = css;
+  const media = extractBlock(rest, MEDIA_DARK_RE);
+  if (media) rest = rest.slice(0, media.start) + rest.slice(media.end);
+  const attr = extractBlock(rest, ATTR_DARK_RE);
+  if (attr) rest = rest.slice(0, attr.start) + rest.slice(attr.end);
+  return { light: rest, mediaDark: media?.text ?? '', attrDark: attr?.text ?? '' };
+};
+/** 桶文本 → { tokenName: 值字面 }（含 var()/rgba()/none 等非 hex 字面；color-scheme 一併收） */
+const declsOf = (bucketText) => {
+  const out = {};
+  for (const m of bucketText.matchAll(/(--[\w-]+|color-scheme)\s*:\s*([^;]+);/g))
+    out[m[1]] = m[2].trim().replace(/\s+/g, ' ');
+  return out;
+};
+/** media dark 塊 → 內層 :root 規則體（media query 條件裡的 prefers-color-scheme 字樣會污染 declsOf，先剝殼） */
+const mediaInner = (t) => extractBlock(t, /:root:not\(\[data-theme="light"\]\)/)?.text ?? '';
+
 // 剝除註解再解析——否則「舊值以宣告原樣註解備查」會覆蓋真值、壞色全綠（審查 confirmed HIGH）
-const tokensSource = stripComments(tokensCss + '\n' + tokensAppCss);
+const bucketsCore = splitBuckets(stripComments(tokensCss));
+const bucketsApp = splitBuckets(stripComments(tokensAppCss));
+const tokensSource = bucketsCore.light + '\n' + bucketsApp.light;   // 既有斷言全走 light 桶（行為不變）
 const hexTokens = {};
 for (const m of tokensSource.matchAll(/--color-([\w-]+):\s*(#[0-9a-fA-F]{6})\s*;/g))
   hexTokens[m[1]] = m[2];
+// dark 桶 hex 表（media 塊為準；[dark-a] 保證兩塊一致）
+const darkHex = {};
+for (const m of (bucketsCore.mediaDark + '\n' + bucketsApp.mediaDark).matchAll(/--color-([\w-]+):\s*(#[0-9a-fA-F]{6})\s*;/g))
+  darkHex[m[1]] = m[2];
 
 const lum = (hex) => {
   const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
@@ -207,6 +256,103 @@ for (const ex of EXCEPTIONS) {
   assertRatio('wcag-exception', ex.pair[0], bg, ex.floor, `${ex.selector}（${ex.note}）`);
 }
 
+// ============ [6] dark mode 守門（0.5.0） ============
+
+// [dark-a] 兩 dark 塊宣告必須完全一致（僅 selector 異）——core 與 app 各自比對
+for (const [name, buckets] of [['tokens.css', bucketsCore], ['tokens-app.css', bucketsApp]]) {
+  const hasM = !!buckets.mediaDark, hasA = !!buckets.attrDark;
+  if (hasM !== hasA) { fail('dark-a', `${name}：dark 兩塊只出現其一（media:${hasM} attr:${hasA}）`); continue; }
+  if (!hasM) { fail('dark-a', `${name}：缺 dark 塊（0.5.0 起必備）`); continue; }
+  const dm = declsOf(mediaInner(buckets.mediaDark)), da = declsOf(buckets.attrDark);
+  const keys = new Set([...Object.keys(dm), ...Object.keys(da)]);
+  for (const k of keys)
+    if (dm[k] !== da[k])
+      fail('dark-a', `${name}：dark 兩塊「${k}」不一致（media=${dm[k] ?? '(缺)'} / attr=${da[k] ?? '(缺)'}）`);
+}
+
+// [dark-g] dark 桶禁 color-mix——運行時函式逃逸靜態驗算，值一律預算成 hex/rgba
+for (const [name, buckets] of [['tokens.css', bucketsCore], ['tokens-app.css', bucketsApp]])
+  for (const [blk, label] of [[buckets.mediaDark, 'media'], [buckets.attrDark, 'attr']])
+    if (/color-mix\(/.test(blk)) fail('dark-g', `${name} dark ${label} 塊含 color-mix()——改預算後靜態值`);
+
+// [dark-e] input-bg(dark) 必須是 var(--color-bg-soft) 別名（單一真相，pplx Q5 裁定）
+{
+  const dm = declsOf(mediaInner(bucketsCore.mediaDark));
+  if (dm['--color-input-bg'] !== 'var(--color-bg-soft)')
+    fail('dark-e', `dark 桶 --color-input-bg = ${dm['--color-input-bg'] ?? '(缺)'}——須為 var(--color-bg-soft)`);
+}
+
+// [dark-b] dark 桶 WCAG 對比固化（設計 v4 §3.1 全組合；文字 4.5／圖形與 UI 邊界 3.0）
+{
+  const d = darkHex;
+  const inputBg = d['bg-soft'];   // input-bg = var(--color-bg-soft)，[dark-e] 已保證
+  const pairs = [
+    ['text', 'bg', 4.5], ['text', 'bg-soft', 4.5],
+    ['text-muted', 'bg', 4.5], ['text-muted', 'bg-soft', 4.5],
+    ['text', 'primary-soft-bg', 4.5],
+  ];
+  for (const [fg, bg, min] of pairs)
+    assertRatio('dark-b', d[fg], d[bg], min, `dark：--color-${fg} 對 --color-${bg}`);
+  assertRatio('dark-b', hexTokens['primary'], d['bg'], 3.0, 'dark：primary 圖形對 bg');
+  assertRatio('dark-b', hexTokens['primary'], d['bg-soft'], 3.0, 'dark：primary 圖形對 bg-soft');
+  assertRatio('dark-b', hexTokens['primary'], d['primary-soft-bg'], 3.0, 'dark：primary icon 對 soft-bg（.status--active ●）');
+  assertRatio('dark-b', WHITE, d['surface-inverse'], 4.5, 'dark：白字對 surface-inverse（.section--dark）');
+  assertRatio('dark-b', d['border-input'], d['bg'], 3.0, 'dark：border-input 對 bg（WCAG 1.4.11 表單邊界）');
+  assertRatio('dark-b', d['border-input'], inputBg, 3.0, 'dark：border-input 對 input-bg（內凹側）');
+  for (const k of ['success', 'warning', 'danger', 'info']) {
+    assertRatio('dark-b', d[k], d['bg'], 4.5, `dark：--color-${k} 對 bg`);
+    assertRatio('dark-b', d[k], d['bg-soft'], 4.5, `dark：--color-${k} 對 bg-soft`);
+    assertRatio('dark-b', d[`${k}-hover`], d['bg'], 4.5, `dark：--color-${k}-hover 對 bg`);
+  }
+}
+
+// [dark-c] global.css print 重設值 === light 桶值（逐 token 字面比對，含 var/color-mix 字面）
+// [dark-f] 門面 print 塊必須位於所有 @layer 塊之外且在其後（unlayered 恆勝的結構前提）
+{
+  const globalSrc = MODE === 'megaweb'
+    ? stripComments(read(join(ROOT, 'src/styles/global.css')))
+    : stripComments(read(join(bundleDir, '_ds_bundle.css')));
+  const printBlock = extractBlock(globalSrc, /@media print/);
+  if (!printBlock) fail('dark-c', 'print 塊不存在');
+  else {
+    const printRoot = extractBlock(printBlock.text, /:root\s*,\s*:root\[data-theme="dark"\]/);
+    if (!printRoot) fail('dark-c', 'print 塊缺 `:root, :root[data-theme="dark"]` token 重設規則');
+    else {
+      const printDecls = declsOf(printRoot.text);
+      if (printDecls['color-scheme'] !== 'light') fail('dark-c', 'print 重設缺 color-scheme: light');
+      const lightDecls = declsOf(bucketsCore.light);
+      for (const [k, v] of Object.entries(printDecls)) {
+        if (k === 'color-scheme') continue;
+        if (!(k in lightDecls)) fail('dark-c', `print 重設「${k}」在 light 桶不存在`);
+        else if (lightDecls[k] !== v) fail('dark-c', `print 重設「${k}」= ${v} ≠ light 桶 ${lightDecls[k]}——兩處同步`);
+      }
+      // 反向：dark 桶覆蓋過的 token，print 必須全數重設（漏一個＝手動深色列印漏網）
+      const darkKeys = Object.keys(declsOf(mediaInner(bucketsCore.mediaDark))).filter((k) => k.startsWith('--'));
+      for (const k of darkKeys)
+        if (!(k in printDecls)) fail('dark-c', `dark 桶覆蓋的「${k}」未在 print 重設——手動深色列印會漏網`);
+    }
+  }
+  if (facade) {
+    const fBody = facade.slice(facade.indexOf('\n') + 1);
+    const printIdx = fBody.indexOf('@media print');
+    if (printIdx === -1) fail('dark-f', '門面缺 print 塊');
+    else {
+      let scan = fBody, guard = 0, layerEnd = -1;
+      // 找出所有 @layer <name> { } 塊，取最大 end；print 起點不得落在任何塊內
+      while (guard++ < 10) {
+        const blk = extractBlock(scan, /@layer [\w-]+(?:\s*,\s*[\w-]+)*\s*\{/);
+        if (!blk) break;
+        const realStart = fBody.length - scan.length + blk.start;
+        const realEnd = realStart + (blk.end - blk.start);
+        if (printIdx > realStart && printIdx < realEnd) fail('dark-f', '門面 print 塊落在 @layer 塊內——unlayered 恆勝前提破壞');
+        layerEnd = Math.max(layerEnd, realEnd);
+        scan = scan.slice(blk.end);
+      }
+      if (layerEnd !== -1 && printIdx < layerEnd) fail('dark-f', '門面 print 塊位於最後一個 @layer 塊之前——須在所有層塊之後');
+    }
+  }
+}
+
 // ============ [3]+[4] component 層原始碼掃描 ============
 
 // 橘 token 別名閉包：--color-status-active: var(--color-primary) 之類的別名鏈全數視同品牌橘
@@ -234,9 +380,19 @@ const scanFiles = MODE === 'megaweb'
 
 const COLOR_PROPS_RE = /(?<![-\w])(color|background(?:-color)?|border(?:-(?:top|right|bottom|left))?-color|outline-color|text-decoration-color|caret-color|accent-color|fill|stroke)\s*:\s*([^;]+);/g;
 
+// print 的 :root token 重設規則（light 值 hex 副本）在寫死色掃描前挖掉——
+// 它的正確性由 [dark-c]「逐 token === light 桶」保證，比白名單更嚴，不重複計較。
+const stripPrintReset = (css) => {
+  const pr = extractBlock(css, /@media print/);
+  if (!pr) return css;
+  const rootRule = extractBlock(pr.text, /:root\s*,\s*:root\[data-theme="dark"\]/);
+  if (!rootRule) return css;
+  return css.slice(0, pr.start + rootRule.start) + css.slice(pr.start + rootRule.end);
+};
+
 for (const [f, allowed] of scanFiles) {
   if (!existsSync(f)) { fail('derive', `${relative(ROOT, f)} 不存在`); continue; }
-  const css = stripComments(read(f)); // 剝除註解——說明文字裡的色碼不算寫死
+  const css = stripPrintReset(stripComments(read(f))); // 剝除註解——說明文字裡的色碼不算寫死
   const rel = relative(ROOT, f);
   // [3] 橘不做文字色：`color:` 宣告（排除 border-color 等）不得取品牌橘（含別名鏈）
   //     唯一例外：鐵則明文允許「橘進 icon」——.status__icon 的宣告行放行

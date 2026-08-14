@@ -14,7 +14,19 @@
       warning 僅 4.17:1，皆 fail AA；tint 底上的文字用 -hover 深化版或深灰 --color-text。
    收編對象：MegaQ #16a34a（對白 3.3:1 fail AA）、MegaQuotr #10B981——皆改 import 本檔對齊。
    info 為 MegaQ badge/連結既有需求收編而納入（muted 鋼藍）；purple 通用性低，暫不納入。
+   ------------------------------------------------------------
+   0.5.0 dark mode：
+   ⚠ 角色契約——dark 版四色為淺 pastel，僅當前景（文字/icon/框），不得當白字底色；
+      light 版夠深可當白字底，dark 下同寫法會靜默壞掉。
+   ⚠ components-app.css 的 var(..., #hex) fallback 常值定義為「對齊 light 值」——
+      degrade 路徑（引 components-app 未引本檔）只保 light；該類消費端必須釘
+      <html data-theme="light">。check-brand 守門 [app-fallback]。
+   本檔 opt-in 獨立 link 場景需自帶層序宣告；與門面重複宣告時首見為準、無害。
    ============================================================ */
+@layer mp-tokens, mp-components;
+
+@layer mp-tokens {
+
 :root {
   /* 沉穩低飽和、與品牌橘 #F06000 和諧；色值經 WCAG AA 實測選定 */
   --color-success:       #2E7D55;  /* 白 5.02:1 ✓ 沉穩森綠 */
@@ -33,3 +45,31 @@
   --color-info-hover:    #21426B;
   --color-info-tint:     color-mix(in srgb, var(--color-info) 12%, transparent);
 }
+
+/* Dark（0.5.0）：淺 pastel 前景版，對 #1E293B/#0F172A 兩深底皆 ≥4.5 AA（驗算見設計 v4 §3.1）。
+   hover 走亮化（dark 慣例；light 為深化）。兩塊必須一致（check-brand [dark-a]），值靜態。 */
+@media screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-success:       #57A97F;
+    --color-success-hover: #6EC297;
+    --color-warning:       #C79A3D;
+    --color-warning-hover: #D9AF55;
+    --color-danger:        #E0716A;
+    --color-danger-hover:  #EA8D83;
+    --color-info:          #6B9BD1;
+    --color-info-hover:    #84AEDD;
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-success:       #57A97F;
+  --color-success-hover: #6EC297;
+  --color-warning:       #C79A3D;
+  --color-warning-hover: #D9AF55;
+  --color-danger:        #E0716A;
+  --color-danger-hover:  #EA8D83;
+  --color-info:          #6B9BD1;
+  --color-info-hover:    #84AEDD;
+}
+
+} /* end @layer mp-tokens */

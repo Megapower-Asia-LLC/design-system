@@ -85,14 +85,15 @@ fd -e html -e ts . ~/Projects/megaq/backend -E node_modules -x sd 'F06000' '新�
 | 專案 | 接入方式 | repo（分支） |
 |---|---|---|
 | megaweb | 來源本身 | `Megapower-Asia-LLC/megaweb` (master) |
-| AidRadar | npm 套件 | `aiken884/aidradar` (main) |
+| AidRadar | npm 套件（bun 專案，嚴格 tag 釘版 `#v0.4.0`——bun 不支援 `#semver:`；minor 發版不自動拉入，升版改 tag 時才需驗收） | `aiken884/aidradar` (main) |
 | MegaQ 前端 | npm 套件 | `aiken884/MegaQ` (master) |
 | MegaQ 後端模板 / XLSX | inline（`sd` 批次） | 同上 |
 | PrismSGA | inline（`sd` 批次）→ 待升級 vendoring `--inline` | `aiken884/PrismSGA` (main) |
 | MegaQuotr（原 quotr-py，2026-06 改 Python/Flask port） | inline（`sd` 批次，自維 brand.css fork；待 Phase 3 收編改引用） | `aiken884/MegaQuotr` (main) |
 | servicejdc-fixreq | 引用官網 CDN（Aiken 2026-06-26 拍板：megapower.asia 為自家官網、token 走 fragment 已保證安全，自託管理由弱化） | `Megapower-Asia-LLC/servicejdc-fixreq` |
+| linedb（LINE 對話備份 dashboard，2026-08-14 接入） | vendoring（§7 官方腳本；「資料不出裝置」離線需求、CSP self-only；驗收/上線以 vendor.lock.json 的 `bodyHash12` 與發布指紋對帳） | 本機專案（不上 GitHub） |
 
-> **§7 vendoring 適用對象**：真正不能連外者——PrismSGA（PSI 效能）、PDF/DOCX/XLSX（離線文件）。servicejdc 雖含敏感 token 但因 megapower.asia 屬自家網域、改採引用官網，非 vendoring 消費者。
+> **§7 vendoring 適用對象**：真正不能連外者——PrismSGA（PSI 效能）、PDF/DOCX/XLSX（離線文件）、linedb（資料不出裝置）。servicejdc 雖含敏感 token 但因 megapower.asia 屬自家網域、改採引用官網，非 vendoring 消費者。
 >
 > **待收編（語意色走鐘）**：MegaQ 前端自加 `#16a34a` 等飽和色（對白 3.3:1 fail AA）、MegaQuotr `brand.css` 為 933 行 inline fork（綠底 toast/紅錯誤框/舊 web font）。tokens-app.css 發布後排程改 `@import "@megapower/design-tokens/tokens-app.css"` 對齊。
 
