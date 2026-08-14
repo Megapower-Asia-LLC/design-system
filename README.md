@@ -15,12 +15,42 @@ HTML 加一行即可（零安裝、零 build，任何技術棧）：
 
 之後用語意 class + token，產出即群兆風格。megaweb 來源更新並部署後，所有引用者自動同步。
 
+## Dark mode（0.5.0 起，三態）
+
+> ⚠ **CDN 消費端行為變更（BREAKING-for-CDN）**：0.5.0 起「跟隨系統」深色**預設開啟**——系統設深色的訪客會自動看到深色版。頁面尚未驗收深色呈現者，請立即釘回亮色（下方逃生口），舊版 CSS 下該屬性是無害 no-op，可提前部署。
+
+三態機制（純 CSS，無 JS 依賴）：
+
+| 狀態 | 條件 | 行為 |
+|------|------|------|
+| 亮色（預設） | 無任何屬性 | 現有樣式，與 0.4 完全一致 |
+| 跟隨系統 | 使用者系統偏好深色 | 自動套 dark token |
+| 手動指定 | `<html data-theme="dark">` 或 `"light"` | 勝過系統偏好（雙向） |
+
+**逃生口（釘回亮色）**：`<html data-theme="light">`——整站永遠亮色，不跟系統。
+
+**手動切換 snippet**（防 FOUC 必須放 `<head>` 最頂、任何 CSS 之前、inline 不外連）：
+
+```html
+<meta name="color-scheme" content="light dark">
+<script>
+  try { var t = localStorage.getItem("theme");
+        if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+```
+
+切換按鈕：`setAttribute("data-theme", next)` + `localStorage.setItem("theme", next)`。
+
+**覆寫 token 鐵則（@layer）**：0.5.0 起 DS token 包在 `@layer mp-tokens`，你在 layer 外的 `:root { --color-x: … }` 覆寫恆勝——**但 dark 模式下也勝**。因此覆寫任何 `--color-*` 必須「三塊同構」一併給 dark 值（light `:root`／`@media screen and (prefers-color-scheme: dark)` 內 `:root:not([data-theme="light"])`／`:root[data-theme="dark"]`），否則該頁必須釘 `data-theme="light"`。`npx ds-guard` 會抓違規（R8）。
+
+深色下 logo 用 dark 版；三態下的 logo 顯隱 pattern 見 `ds-bundle/BRAND-ASSETS.md`。
+
 ## 作為 npm 套件安裝（React / Tailwind 等需編譯的專案）
 
 純靜態頁直接 link 上面的 CSS 即可；需要在 build 階段使用 token 的專案，可把本 repo 當套件安裝——**git 依賴 + semver tag 釘版，免 publish、免註冊 registry**：
 
 ```bash
-npm install "github:Megapower-Asia-LLC/design-system#semver:^0.3"
+npm install "github:Megapower-Asia-LLC/design-system#semver:^0.5"
 ```
 
 之後 `npm update` 只會升到相容版（不會直接吃 main 最新 commit）；緊急回滾把依賴改成 `#semver:0.x.y` 釘指定版。**lockfile 必須 commit、CI 一律 `npm ci`**，semver 治理才有效。
@@ -58,9 +88,15 @@ import { color, fontSans, logo } from "@megapower/design-tokens";
 | 主色 hover | `--color-primary-hover` | `#D45200` |
 | 文字 / 次要 | `--color-text` / `--color-text-muted` | `#1E293B` / `#64748B` |
 | 底色 / 柔底 | `--color-bg` / `--color-bg-soft` | `#FFFFFF` / `#F8FAFC` |
-| 邊框 | `--color-border` | `#E2E8F0` |
+| 邊框（裝飾） | `--color-border` | `#E2E8F0` |
+| 表單邊框 | `--color-border-input` | `#E2E8F0`（dark 下過 WCAG 1.4.11） |
+| 深色強調區底 | `--color-surface-inverse` | `#1E293B`（`.section--dark` 用；**勿再拿 `--color-text` 當背景**） |
+| surface hover | `--color-bg-hover` | `#F8FAFC`（dark 下亮化） |
+| 表單控件底 | `--color-input-bg` | `#FFFFFF`（dark 下內凹） |
 
-字級 `--text-sm/base/lg/xl`、`--text-display-md/lg`；間距 `--space-2/4/6/8/12`；圓角 `--radius-sm/md/lg/full`；陰影 `--shadow-sm/md/lg`；過場 `--transition-fast/base`。
+上表為 **light 基準值**；dark 值由三態機制自動切換（精確值見 `ds-bundle/tokens/tokens.css` 兩塊 dark 覆蓋）。`tokens.js`（JS 匯出）一律為 light 基準值。
+
+字級 `--text-sm/base/lg/xl`、`--text-display-md/lg`；間距 `--space-2/4/6/8/12`；圓角 `--radius-sm/md/lg/full`；陰影 `--shadow-sm/md/lg`；過場 `--transition-fast/base`；表單 focus 光暈 `--color-focus-ring`（CSS 專用）。
 
 ## 複製即用範例
 
