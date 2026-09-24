@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-node@v7
         if: env.SKIP != '1'
         with:
-          node-version: 20
+          node-version: 24
       # 零依賴腳本，無需 npm install
       - name: check-brand（package 模式）
         if: env.SKIP != '1'
